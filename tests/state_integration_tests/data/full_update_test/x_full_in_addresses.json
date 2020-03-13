@@ -1,0 +1,16 @@
+{
+  "connections": {
+    "in": {
+      "reply_some_set_number": {
+        "replyer": "127.0.0.1:8882"
+      }
+    }
+  },
+  "states": {
+    "in": {
+      "full_in_state": {
+        "subscriber": "127.0.0.1:8881"
+      }
+    }
+  }
+}

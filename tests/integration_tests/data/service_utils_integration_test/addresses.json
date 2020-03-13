@@ -1,0 +1,26 @@
+{
+  "connections": {
+    "in": {
+      "in_connection_1": {
+        "replyer": "127.0.0.1:5001"
+      }
+    },
+    "out": {
+      "out_connection_1": {
+        "requester": "127.0.0.1:5001"
+      }
+    } 
+  },
+  "states": {
+     "in": {
+      "in_state_1": {
+        "subscriber": "127.0.0.1:7001"
+      }
+    },
+    "out": {
+      "out_state_1": {
+        "publisher": "127.0.0.1:7001"
+      }
+    } 
+  }
+}

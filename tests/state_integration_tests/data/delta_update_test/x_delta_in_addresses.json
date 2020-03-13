@@ -1,0 +1,17 @@
+{
+  "connections": {
+    "in": {
+      "current_downstream_state": {
+        "replyer": "127.0.0.1:7998"
+      }
+    }
+  },
+  "states": {
+    "in": {
+      "delta_state": {
+        "subscriber": "127.0.0.1:8881",
+        "requester": "127.0.0.1:8882"
+      }
+    }
+  }
+}

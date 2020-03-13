@@ -1,0 +1,16 @@
+{
+  "connections": {
+    "out": {
+      "get_some_set_number": {
+        "requester": "127.0.0.1:7799"
+      }
+    }
+  },
+  "states": {
+    "out": {
+      "full_out_state": {
+        "publisher": "127.0.0.1:7900"
+      }
+    }
+  }
+}

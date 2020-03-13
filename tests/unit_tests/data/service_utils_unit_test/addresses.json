@@ -1,0 +1,28 @@
+{
+  "connections": {
+    "in": {
+      "in_connection_1": {
+        "in_conn_socket_1": "127.0.0.1:5001",
+        "in_conn_socket_2": "127.0.0.1:5002"
+      }
+    },
+    "out": {
+      "out_connection_1": {
+        "out_conn_socket_1": "127.0.0.1:5599"
+      }
+    } 
+  },
+  "states": {
+     "in": {
+      "in_state_1": {
+        "in_state_socket_1": "127.0.0.1:7001",
+        "in_state_socket_2": "127.0.0.1:7002"
+      }
+    },
+    "out": {
+      "out_state_1": {
+        "out_state_socket_1": "127.0.0.1:7799"
+      }
+    } 
+  }
+}
