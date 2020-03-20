@@ -15,12 +15,10 @@ ENV_VARIABLES = ['env_variable_1', 'env_value_1', 'env_variable_2', 'env_value_2
 
 def test_service_utils__setup_addresses__no_addresses_path():
     """
-    Make sure an address path must be provided.
+    Make sure an address path does not cause any errors if not provided.
     """
     imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
-
-    with pytest.raises(ValueError):
-        service_utils.setup_addresses(None, imported_service, {})
+    service_utils.setup_addresses(None, imported_service, {})
 
 
 def test_service_utils__setup_addresses__no_setup_addresses_func_case():

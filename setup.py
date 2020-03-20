@@ -11,8 +11,9 @@ setuptools.setup(
     name='service_framework',
     version='0.0.1',
     author='Zachary A. Tanenbaum',
-    author_email='ZachTanenbaum@gmail.com',
+    author_email='ZachTanenbaum+service_framework@gmail.com',
     description='A package for re-defining microservice architecture',
+    url='https://github.com/ZacharyATanenbaum/service_framework'
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     packages=setuptools.find_packages(),
