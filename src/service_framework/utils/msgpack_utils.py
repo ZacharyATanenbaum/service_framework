@@ -14,6 +14,9 @@ def custom_encode(obj):
     if isinstance(obj, Decimal):
         return {'__decimal__': True, 'as_str': str(obj)}
 
+    if isinstance(obj, set):
+        return {'__set__': True, 'value': list(obj)}
+
     if isinstance(obj, UUID):
         return {'__uuid__': True, 'as_str': str(obj)}
 
@@ -27,10 +30,13 @@ def custom_decode(obj):
     return::Object The decoded object if a custom object
     """
     if '__decimal__' in obj:
-        obj = Decimal(obj['as_str'])
+        return Decimal(obj['as_str'])
 
-    elif '__uuid__' in obj:
-        obj = UUID(obj['as_str'])
+    if '__set__' in obj:
+        return set(obj['value'])
+
+    if '__uuid__' in obj:
+        return UUID(obj['as_str'])
 
     return obj
 

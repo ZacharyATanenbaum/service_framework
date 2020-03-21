@@ -15,6 +15,15 @@ def test_msgpack_utils__custom_encode__can_encode_decimals():
     assert encoded == {'__decimal__': True, 'as_str': str(to_test)}
 
 
+def test_msgpack_utils__custom_encode__can_encode_sets():
+    """
+    Make sure the custom encoder can encode set objects
+    """
+    to_test = set(['hi', 'bye'])
+    encoded = msgpack_utils.custom_encode(to_test)
+    assert encoded == {'__set__': True, 'value': list(to_test)}
+
+
 def test_msgpack_utils__custom_encode__can_encode_uuids():
     """
     Make sure the custom encoder can encode uuid objects
@@ -39,6 +48,16 @@ def test_msgpack_utils__custom_decode__can_decode_decimals():
     """
     to_test = Decimal('11.01')
     encoded = {'__decimal__': True, 'as_str': str(to_test)}
+    decoded = msgpack_utils.custom_decode(encoded)
+    assert to_test == decoded
+
+
+def test_msgpack_utils__custom_decode__can_decode_sets():
+    """
+    Make sure the custom decoder can decode set objects
+    """
+    to_test = set(['thisisatest', 'stillatest'])
+    encoded = {'__set__': True, 'value': list(to_test)}
     decoded = msgpack_utils.custom_decode(encoded)
     assert to_test == decoded
 
