@@ -134,7 +134,7 @@ def setup_connections(connection_models, addresses):
         conns[side] = {}
 
         for model_name, model in connection_models[side].items():
-            LOG.debug('Creation Conn for Modelname %s of Side %s', model_name, side)
+            LOG.debug('Creation Conn for Modelname "%s" of Side "%s"', model_name, side)
 
             conns[side][model_name] = get_connection(
                 model,

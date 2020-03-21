@@ -298,8 +298,8 @@ def setup_addresses(addresses_path, imported_service, config):
     }
     """
     if not addresses_path:
-        LOG.info('Not Address Path! Skipping...')
-        return
+        LOG.info('No Address Path! Skipping...')
+        return {}
 
     LOG.info('Loading addresses from "addresses_path": %s', addresses_path)
     with open(addresses_path, 'r') as addresses_file:

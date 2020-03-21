@@ -14,6 +14,7 @@ REQUIRED_TEST_ARGS = {
     'test_req_set': {'req_item_1', 'req_item_2'},
     'test_req_custom_obj': Decimal('44.44'),
     'test_req_func': lambda req_first, req_second: True,
+    'test_req_set_type': {'this_is_a_set_type'},
 }
 
 OPTIONAL_TEST_ARGS = {
@@ -24,6 +25,7 @@ OPTIONAL_TEST_ARGS = {
     'test_opt_set': {'opt_item_1', 'opt_item_2'},
     'test_opt_custom_obj': Decimal('55.55'),
     'test_opt_func': lambda opt_first, opt_second: True,
+    'test_opt_set_type': {'this_is_an_optional_set_type'},
 }
 
 TEST_ARGS = {
@@ -39,6 +41,7 @@ REQUIRED_ARGS_MODEL = {
     'test_req_set': {'req_item_1', 'req_item_2'},
     'test_req_custom_obj': Decimal,
     'test_req_func': lambda req_first, req_second: 'Hiii',
+    'test_req_set_type': {str},
 }
 
 OPTIONAL_ARGS_MODEL = {
@@ -49,6 +52,7 @@ OPTIONAL_ARGS_MODEL = {
     'test_opt_set': {'opt_item_1', 'opt_item_2'},
     'test_opt_custom_obj': Decimal,
     'test_opt_func': lambda opt_first, opt_second: 'Byyye',
+    'test_opt_set_type': {str},
 }
 
 

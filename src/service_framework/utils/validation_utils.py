@@ -68,7 +68,23 @@ def validate_optional_arg(non_required_arg, optional_type):
             current_optional_type = optional_type[idx]
             validate_optional_arg(item, current_optional_type)
 
+    elif (isinstance(non_required_arg, set)
+          and isinstance(optional_type, set)
+          and len(optional_type) == 1
+          and isinstance(next(iter(optional_type)), type)):
+        # Make sure, if given a set of a single value, that each argument of the provided set is
+        # of that type.
+        #
+        # ex. non_required_args = {'test', 'test2'} optional_type = {str}
+        # This example would be valid...
+        for item in non_required_arg:
+            validate_optional_arg(item, next(iter(optional_type)))
+
     elif isinstance(non_required_arg, set):
+        # Make sure, if given a set of values, that each non_required_argument is of that set.
+        #
+        # ex. non_required_args = {'test', 'test2'} optional_type = {'test', 'test2', 'test3'}
+        # This example would be valid....
         for item in non_required_arg:
             if item not in optional_type:
                 err = 'Provided item "{}" of set "{}" is not in optional set "{}"'.format(
@@ -136,7 +152,21 @@ def validate_required_arg(new_arg, required_type):
             current_required_type = required_type[idx]
             validate_required_arg(item, current_required_type)
 
+    elif (isinstance(required_type, set)
+          and len(required_type) == 1
+          and isinstance(next(iter(required_type)), type)):
+        # Make sure that each new_args in the set if of the required set's type.
+        #
+        # ex. required_type = {str} new_args = {'test', 'test2'}
+        # This example would be valid...
+        for arg in new_arg:
+            validate_optional_arg(arg, next(iter(required_type)))
+
     elif isinstance(required_type, set):
+        # Make sure, if given a set of values, that each value is of the required set
+        #
+        # ex. required_type = {'test', 'test2'} new_args = {'test', 'test2'}
+        # This example would be valid....
         for item in required_type:
             if item not in new_arg:
                 err = 'item "{}" of required set "{}" not found in set "{}"'.format(
