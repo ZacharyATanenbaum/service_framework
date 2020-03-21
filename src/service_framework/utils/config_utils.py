@@ -66,6 +66,13 @@ def get_config_from_unknown_args(unknown_args):
 
     for key in unknown_args:
         value = next(unknown_args)
+
+        if len(key) > 2 and key[:2] == '--':
+            key = key[2:]
+
+        if len(key) > 1 and key[:1] == '-':
+            key = key[1:]
+
         LOG.debug('Adding key, value to config: %s, %s', key, value)
         config[key] = value
 

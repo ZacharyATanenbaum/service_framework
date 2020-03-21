@@ -30,11 +30,25 @@ def test_config_utils__get_config_from_unknown_args__valid_case():
     """
     Get config from the unknown args when passing in an even sized list.
     """
-    unknown_args = ['key_1', 'value_1', 'key_2', ['value', 'two']]
+    unknown_args = [
+        'key_1', 'value_1',
+        'key_2', ['value', 'two'],
+        '-key_3', 'value__3',
+        '--key_4', 'value_4',
+        'key-5', 'value_5',
+        'key--6', 'value_6',
+    ]
+    print('Unknown Args: ', unknown_args)
+
     config = config_utils.get_config_from_unknown_args(unknown_args)
+    print('Parsed Config: ', config)
 
     assert config['key_1'] == 'value_1'
     assert config['key_2'] == ['value', 'two']
+    assert config['key_3'] == 'value__3'
+    assert config['key_4'] == 'value_4'
+    assert config['key-5'] == 'value_5'
+    assert config['key--6'] == 'value_6'
 
 
 def test_config_utils__get_config_from_unknown_args__unvalid_num_args_case():
