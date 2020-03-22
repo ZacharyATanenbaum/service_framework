@@ -22,6 +22,8 @@ def test_requester_replyer_pair_happy_case():
     except Exception as exp:
         rep_process.terminate()
         raise exp
+    finally:
+        rep_process.terminate()
 
     req_stderr = req_output.stderr.decode('utf-8')
     num_responses = 0
