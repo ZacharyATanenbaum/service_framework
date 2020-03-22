@@ -19,9 +19,6 @@ def test_requester_replyer_pair_happy_case():
 
     try:
         req_output = subprocess.run(req_command, check=True, capture_output=True)
-    except Exception as exp:
-        rep_process.terminate()
-        raise exp
     finally:
         rep_process.terminate()
 
