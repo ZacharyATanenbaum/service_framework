@@ -41,7 +41,18 @@ def validate_optional_arg(non_required_arg, optional_type):
     LOG.debug('non_required_arg: %s, optional_type: %s', non_required_arg, optional_type)
     if isinstance(non_required_arg, dict):
         for key, val in non_required_arg.items():
-            if key not in optional_type:
+            if type(key) in optional_type:
+                # Make sure given an actual key, there isn't a type key in optional_types.
+                #
+                # ex. non_required_arg = {'hi': 'test'} optional_type = {str: str}
+                # This is a valid case.
+                validate_optional_arg(val, optional_type[type(key)])
+
+            elif key not in optional_type:
+                # Make sure given an actual key, that key is located in the optional_types.
+                #
+                # ex. non_required_arg = {'hi': 'test'} optional_type = {'hi': str}
+                # This is a valid case.
                 err = 'Key "{}" not in optional arguments "{}"'.format(
                     key,
                     optional_type
@@ -49,7 +60,8 @@ def validate_optional_arg(non_required_arg, optional_type):
                 LOG.error(err)
                 raise ValueError(err)
 
-            validate_optional_arg(val, optional_type[key])
+            else:
+                validate_optional_arg(val, optional_type[key])
 
     elif isinstance(non_required_arg, list):
         for item in non_required_arg:
@@ -126,7 +138,30 @@ def validate_required_arg(new_arg, required_type):
     return::bool
     """
     LOG.debug('new_arg: %s, required_type: %s', new_arg, required_type)
-    if isinstance(required_type, dict):
+    if (isinstance(required_type, dict)
+            and len(required_type.keys()) == 1
+            and len(required_type.values()) == 1
+            and type(list(required_type.keys())[0]) == type):
+        # When provided a dictionary that has a type key make sure the provided key is of that type.
+        #
+        # ex. new_arg = {'hello_world': 'test'} and required_type = {str: str}
+        # This would be a valid case.
+        required_key_type = list(required_type.keys())[0]
+
+        for key, val in new_arg.items():
+            if not isinstance(key, required_key_type):
+                err = f'Key {key} not of required type {required_key_type}'
+                LOG.error(err)
+                raise ValueError(err)
+
+            validate_required_arg(val, list(required_type.values())[0])
+
+    elif isinstance(required_type, dict):
+        # When provided a dict that has an actual key, make sure that key appears
+        # in the provided arguments.
+        #
+        # ex. new_arg = {'hello_world': 'test'} and required_type = {'hello_world': str}
+        # This would be a valid case.
         for key, val in required_type.items():
             if key not in new_arg:
                 err = 'Key "{}" not in new arg "{}"'.format(key, new_arg)
