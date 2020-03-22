@@ -10,7 +10,8 @@ def setup_connection_models(connections, config):
     """
     Properly setup connections before service is setup.
     """
-    to_call = cbpro.PublicClient.get_product_ticker
+    public_client = cbpro.PublicClient()
+    to_call = lambda product_id: public_client.get_product_ticker(product_id)
     connections['out']['external_request']['required_creation_arguments']['func_to_call'] = to_call
     return connections
 

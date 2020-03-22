@@ -119,4 +119,5 @@ class ExternalRequest(BaseConnection):
         This is needed to wrap socket calls. So all calls to the connection
         will be properly formatted.
         """
-        return self.func_to_call(**payload)
+        response = self.func_to_call(**payload['args'])
+        return {'return_args': response}

@@ -523,10 +523,10 @@ def setup_to_send(states, connections, logger_args_dict, workflow_id=None, incre
         LOG.debug('Creating payload to send')
         payload = create_out_payload(args, cur_workflow_id)
 
-        LOG.debug('Sending payload')
+        LOG.debug('Sending payload: %s', payload)
         response = output_to.send(payload)
 
-        LOG.debug('Parsing returned Response')
+        LOG.debug('Parsing returned Response: %s', response)
         returned_args = parse_out_response(response)
 
         LOG.debug('Validating response from send function')
