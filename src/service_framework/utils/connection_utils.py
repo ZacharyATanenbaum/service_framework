@@ -140,6 +140,9 @@ def setup_connections(connection_models, addresses):
             side_addresses = connection_addresses.get(side, {})
             model_addresses = side_addresses.get(model_name, {})
 
+            if not model_addresses:
+                LOG.warning('[connections][%s][%s] NOT IN ADDRESSES FILE!', side, model_name)
+
             conns[side][model_name] = get_connection(
                 model,
                 side,
