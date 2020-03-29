@@ -179,7 +179,7 @@ def run_main(config, connections, states, main_func, logger_args_dict):
     )
 
     def sigint_handler(signum, _):
-        LOG.info('got SIGINT "%s"! Cleaning up...', signum)
+        LOG.info('Got SIGINT "%s"! Cleaning up...', signum)
         global RUN_FLAG
         RUN_FLAG = False
 
@@ -225,6 +225,7 @@ def run_service(config, connections, states, logger_args_dict):
 
     LOG.debug('Starting Service Loop...')
 
+    global RUN_FLAG
     while RUN_FLAG:
         payloads = get_all_new_payloads(polling_list, poller)
 
