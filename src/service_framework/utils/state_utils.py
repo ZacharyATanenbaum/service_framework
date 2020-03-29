@@ -281,7 +281,7 @@ class BaseState(ABC):
             'return_validator': def(return_args)
             'return_function': def(return_args),
         }]
-"""
+        """
 
     def get_state(self):
         """

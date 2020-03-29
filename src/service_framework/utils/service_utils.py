@@ -3,7 +3,7 @@
 import json
 import logging
 import threading
-import sys
+import signal
 import uuid
 import zmq
 from service_framework.utils import (
@@ -177,13 +177,20 @@ def run_main(config, connections, states, main_func, logger_args_dict):
         target=run_service,
         args=(config, connections, states, logger_args_dict)
     )
+
+    def sigint_handler(signum, _):
+        LOG.info('got SIGINT "%s"! Cleaning up...', signum)
+        global RUN_FLAG
+        RUN_FLAG = False
+
+    signal.signal(signal.SIGINT, sigint_handler)
     service_thread.daemon = True
     service_thread.start()
 
     main_func(to_send, config)
-
     global RUN_FLAG
     RUN_FLAG = False
+
 
 
 def run_service(config, connections, states, logger_args_dict):
