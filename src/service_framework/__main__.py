@@ -30,6 +30,14 @@ def main():
     connections = service_utils.setup_connections(addresses, imported_service, config)
     states = service_utils.setup_states(addresses, imported_service, config)
 
+    service_utils.setup_sigint_handler_func(
+        imported_service,
+        config,
+        connections,
+        states,
+        logger_args_dict
+    )
+
     if args.main_mode:
         service_utils.run_main(config, connections, states, imported_service.main, logger_args_dict)
 

@@ -595,3 +595,54 @@ def setup_states(addresses, imported_service, config):
             raise ValueError(err)
 
     return state_utils.setup_states(state_models, addresses)
+
+
+def setup_sigint_handler_func(imported_service, config, connections, states, logger_args_dict):
+    """
+    This function is used to setup a custom sigint handler provided from
+    the imported service.
+    imported_service::module The imported service python file
+    config = {'config_arg_1': 'config_value_1', ...}
+    connections = {
+        'in': {
+            'connection_name': BaseConnector(),
+        },
+        'out': {
+            'connection_name': BaseConnector(),
+        },
+    }
+    states = {
+        'in': {
+            'state_name': BaseState(),
+        },
+        'out': {
+            'state_name': BaseState(),
+        },
+    }
+    logger_args_dict = {
+        console_loglevel: str,
+        log_folder: None,
+        file_loglevel: str,
+        backup_count: int,
+    }
+    """
+    if not hasattr(imported_service, 'sigint_handler'):
+        LOG.warning('No "sigint_handler" in Service File. Skipping Sigint setup...')
+        return
+
+    to_send = setup_to_send(
+        states,
+        connections,
+        logger_args_dict
+    )
+
+    def custom_sigint_handler(sigint, frame):
+        imported_service.sigint_handler(
+            sigint,
+            frame,
+            to_send,
+            get_current_states(states),
+            config
+        )
+
+    utils.add_sigint_handler(custom_sigint_handler)
