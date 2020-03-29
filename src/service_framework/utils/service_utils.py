@@ -3,7 +3,6 @@
 import json
 import logging
 import threading
-import signal
 import uuid
 import zmq
 from service_framework.utils import (
@@ -12,6 +11,7 @@ from service_framework.utils import (
     logging_utils,
     socket_utils,
     state_utils,
+    utils,
     validation_utils
 )
 
@@ -183,14 +183,13 @@ def run_main(config, connections, states, main_func, logger_args_dict):
         global RUN_FLAG
         RUN_FLAG = False
 
-    signal.signal(signal.SIGINT, sigint_handler)
+    utils.add_sigint_handler(sigint_handler)
     service_thread.daemon = True
     service_thread.start()
 
     main_func(to_send, config)
     global RUN_FLAG
-    RUN_FLAG = False
-
+    RUN_FLAG = False # Not needed, but makes tests run much faster
 
 
 def run_service(config, connections, states, logger_args_dict):

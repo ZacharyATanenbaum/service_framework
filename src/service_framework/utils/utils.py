@@ -3,9 +3,25 @@
 import importlib
 from logging import getLogger
 import os
+import signal
 import sys
 
 LOG = getLogger(__name__)
+
+
+def add_sigint_handler(new_handler_func):
+    """
+    Wraps setting the sigint handler to properly set the handler without
+    overwriting the original sigint handler.
+    func::def(signum, frame) Function to set the new handler
+    """
+    previous_handler = signal.getsignal(signal.SIGINT)
+
+    def new_sigint_handler(sigint, frame):
+        new_handler_func(sigint, frame)
+        previous_handler(sigint, frame)
+
+    return new_sigint_handler
 
 
 def convert_path_to_import(path):
