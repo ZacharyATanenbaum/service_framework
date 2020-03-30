@@ -161,9 +161,25 @@ Any service is able to write to and get the most updated state.
 - Main Method
   - Only Method called in this service
   - ex. `main(to_send, states, config)`
+#### Optional Methods
+- Setup Configs
+  - ex. `setup_configs(config)`
+  - This method is called before the main method.
+  - This method is used to update the config before it's used.
+  - This method merges the responses with the provided config. (Overwrites keys)
+  - ex.
+```
+return {
+    'required': {
+        'argument_1': 'first_argument',
+    },
+    'optional': {
+        'argument_2': 'the_second_argument',
+    },
+}
+```
 - Setup Connections
   - ex. `setup_connections(config)`
-  - This method is only required if a connection has required arguments
   - This method is called at the start of the service
   - This method must return all arguments for the given connection name.
   - ex. 
@@ -195,23 +211,9 @@ return {
   },
 }
 ```
-#### Optional Methods
-- Setup Configs
-  - ex. `setup_configs(config)`
-  - This method is called before the main method.
-  - This method is used to update the config before it's used.
-  - This method merges the responses with the provided config. (Overwrites keys)
-  - ex.
-```
-return {
-    'required': {
-        'argument_1': 'first_argument',
-    },
-    'optional': {
-        'argument_2': 'the_second_argument',
-    },
-}
-```
+- Sigint Handler
+  - ex. `sigint_handler(sigint, frame, to_send, states, config)`
+  - This method is called whenever a sigint is provided.
 #### Optional Models
 Each Model is only required if it's used in the leading edge service.
   - `config_model`
@@ -225,7 +227,9 @@ Each Model is only required if it's used in the leading edge service.
   - This method is called whenever a message from this connection is recieved
   - The mapping between function and model is located in the model
   - ex. `function_name_in_conn_model(args, to_send, states, config)`
-- Setup Connections Model
+
+#### Optional Methods
+- Setup Connections Method
   - ex. `setup_connections(config)`
   - This method is only required if a connection has required arguments
   - This method is called at the start of the service
@@ -259,6 +263,9 @@ return {
   },
 }
 ```
+- Sigint Handler
+  - ex. `sigint_handler(sigint, frame, to_send, states, config)`
+  - This method is called whenever a sigint is provided.
 #### Optional Models
 Models are only needed if used in the service.
   - `config_model`
