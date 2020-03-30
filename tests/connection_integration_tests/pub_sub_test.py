@@ -8,7 +8,7 @@ RUN_PUB_FILE_PATH = './tests/connection_integration_tests/data/pub_sub_test/run_
 
 RUN_X_IN_PATH = './tests/state_integration_tests/data/full_update_test/run_x_full_in.sh'
 RUN_X_OUT_PATH = './tests/state_integration_tests/data/full_update_test/run_x_full_out.sh'
-RUN_X_PUB_SUB_BUS = './tests/state_integration_tests/data/full_update_test/pub_sub_bus/run_bus.sh'
+RUN_X_PUB_SUB_BUS = './tests/state_integration_tests/data/pub_sub_bus/run_bus.sh'
 
 
 def test_regular_pub_sub_connections():
