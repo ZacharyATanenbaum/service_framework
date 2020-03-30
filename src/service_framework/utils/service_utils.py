@@ -630,6 +630,7 @@ def setup_sigint_handler_func(imported_service, config, connections, states, log
         LOG.warning('No "sigint_handler" in Service File. Skipping Sigint setup...')
         return
 
+    LOG.info('Found "sigint_handler! Setting up now...')
     to_send = setup_to_send(
         states,
         connections,

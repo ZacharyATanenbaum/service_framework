@@ -33,7 +33,6 @@ def test_full_update_states_with_topic_and_xpub_xsub_bus():
     This is needed to make sure when multiple topics are being sent over
     an xpub xsub bus the messages are delivered properly.
     """
-    """
     xbus_command = get_exec_command_for_python_program(RUN_X_PUB_SUB_BUS)
     xin_command = get_exec_command_for_python_program(RUN_X_IN_PATH)
     xout_command = get_exec_command_for_python_program(RUN_X_OUT_PATH)
@@ -48,4 +47,3 @@ def test_full_update_states_with_topic_and_xpub_xsub_bus():
     finally:
         xbus_process.terminate()
         xin_process.terminate()
-    """

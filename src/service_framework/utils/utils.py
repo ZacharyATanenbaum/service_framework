@@ -21,7 +21,7 @@ def add_sigint_handler(new_handler_func):
         new_handler_func(sigint, frame)
         previous_handler(sigint, frame)
 
-    return new_sigint_handler
+    signal.signal(signal.SIGINT, new_sigint_handler)
 
 
 def convert_path_to_import(path):

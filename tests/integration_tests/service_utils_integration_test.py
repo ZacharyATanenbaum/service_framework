@@ -1,13 +1,22 @@
 """ File to house integration tests for the service utils """
 
+import logging
+import signal
+import subprocess
+import time
 import uuid
 import pytest
-from service_framework.utils import service_utils, utils
+import zmq
+from service_framework.utils import msgpack_utils, service_utils, socket_utils, utils
+import testing_utils
+
+LOG = logging.getLogger(__name__)
 
 ADDRESSES_PATH = './tests/integration_tests/data/service_utils_integration_test/addresses.json'
 SERVICE_PATH = './tests/integration_tests/data/service_utils_integration_test/service.py'
 WO_SERVICE_PATH = './tests/integration_tests/data/service_utils_integration_test/wo_service.py'
 MAIN_SERVICE_PATH = './tests/integration_tests/data/service_utils_integration_test/main_service.py'
+SIGINT_PATH = './tests/integration_tests/data/service_utils_integration_test/run_sigint_service.sh'
 PROPER_ARGS = {'this_is_a_test_arg': 'Test Value!'}
 RETURN_PAYLOAD = {
     'return_args': {
@@ -344,3 +353,27 @@ def test_service_utils__run_main__main_runs_successfully():
     main_func = lambda to_send, config: True
 
     service_utils.run_main(config, conns, states, main_func, {})
+
+
+def test_service_utils__setup_sigint_handler_func__sucessfully_called_custom_sigint_handler():
+    """
+    Test if the service_framework will properly call a custom sigint handler function on
+    sigint.
+    """
+    context = zmq.Context()
+    sub_socket = socket_utils.get_subscriber_socket('127.0.0.1:7007', context)
+
+    run_command = testing_utils.get_exec_command_for_python_program(SIGINT_PATH)
+    process = subprocess.Popen(run_command)
+
+    time.sleep(0.35)
+    process.send_signal(signal.SIGINT)
+
+    payload1 = msgpack_utils.msg_unpack(sub_socket.recv())
+    payload2 = msgpack_utils.msg_unpack(sub_socket.recv())
+
+    LOG.info(payload1)
+    LOG.info(payload2)
+
+    assert payload1['args']['message'] == 'handler1'
+    assert payload2['args']['message'] == 'handler2'
