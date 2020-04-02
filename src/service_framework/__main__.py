@@ -1,10 +1,8 @@
 """ Main Function for the Service Framework """
 
 import argparse
-import json
 from multiprocessing import Process
-from service_framework.utils import config_utils, logging_utils, service_utils, utils
-
+from service_framework.utils import config_utils, service_utils, utils
 
 
 def main():
@@ -18,21 +16,26 @@ def main():
         print('Getting config from Unknown Args: ', unknown_args)
         config = config_utils.get_config_from_unknown_args(unknown_args)
 
-    if args.config_path:
-        print('Getting config from file: ', args.config_path)
-        config = {**config, **config_utils.get_config_from_file(args.config_path)}
+    print('Getting config from file: ', args.config_path)
+    config = utils.get_json_from_rel_path(args.config_path)
 
-    addresses = {}
-    if args.addresses_path:
-        print('Getting addresses from provided path: %s', args.addresses_path)
-        addresses = json.loads(args.addresses_path)
+    print('Getting Addresses from file: ', args.addresses_path)
+    addresses = utils.get_json_from_rel_path(args.addresses_path)
 
-    service = Service(args.service_path, addresses, config, **args)
+    service = Service(
+        args.service_path,
+        config=config,
+        addresses=addresses,
+        console_loglevel=args.console_loglevel,
+        log_folder=args.log_folder,
+        file_loglevel=args.file_loglevel,
+        backup_count=args.backup_count
+    )
 
     if args.main_mode:
-        service.run_service_as_main()
+        service.run_service_as_main_blocking()
     else:
-        service.run_service()
+        service.run_service_blocking()
 
 
 class Service:
@@ -41,7 +44,14 @@ class Service:
     the running of said service in a new subprocess
     """
 
-    def __init__(self, service_path, addresses=None, config=None, **kwargs):
+    def __init__(self,
+                 service_path,
+                 config=None,
+                 addresses=None,
+                 console_loglevel='INFO',
+                 log_folder=None,
+                 file_loglevel='INFO',
+                 backup_count=240):
         """
         service_path = './services/other_folder/service_file.py'
         config = {
@@ -59,72 +69,101 @@ class Service:
             },
             'states': {}
         }
-        is_main_mode::bool Used to signify if a main method will be run or not.
+        console_loglevel::str Level of the console logger (if used, None to disable)
+        log_folder::str The location of the folder to output logs (if used, None to disable)
+        file_loglevel::str The level of the file logger (if used)
+        backup_count::int Number of hours that should be saved for file logger
         """
         self.logger_args_dict = {
-            'console_loglevel': kwargs.get('console_loglevel', 'INFO'),
-            'log_folder': kwargs.get('log_folder'),
-            'file_loglevel': kwargs.get('file_loglevel', 'INFO'),
-            'backup_count': kwargs.get('backup_count', 240),
+            'console_loglevel': console_loglevel,
+            'log_folder': log_folder,
+            'file_loglevel': file_loglevel,
+            'backup_count': backup_count
         }
 
-        self.log = logging_utils.setup_package_logger(**self.logger_args_dict)
         self.imported_service = utils.import_python_file_from_cwd(service_path)
-
         self.config = service_utils.setup_config(config, self.imported_service)
         self.addresses = service_utils.setup_addresses(addresses, self.imported_service, config)
         self.connections = service_utils.setup_connections(addresses, self.imported_service, config)
         self.states = service_utils.setup_states(addresses, self.imported_service, config)
+
         self.process = None
 
     def __del__(self):
-        if self.process:
-            self.process.terminate()
+        try:
+            if self.process:
+                self.process.terminate()
+        except AttributeError:
+            pass
 
     def run_service_as_main(self):
         """
         This method is used to encapsulate the running of the service main.
         """
         if self.process:
-            err = 'Subprocess is already running!'
-            self.log.error(err)
-            raise RuntimeError(err)
+            raise RuntimeError('Subprocess is already running!')
 
-        self.process = Process(
-            target=service_utils.run_main,
-            args=(
-                self.config,
-                self.connections,
-                self.states,
-                self.imported_service.main,
-                self.logger_args_dict
-            )
+        target = service_utils.run_main
+        args = (
+            self.config,
+            self.connections,
+            self.states,
+            self.imported_service.main,
+            self.logger_args_dict
         )
-        self.process.daemon = True
-        self.process.start()
-        self._setup_sigint_handler()
+        self._run_target_in_background(target, args)
+
+    def run_service_as_main_blocking(self):
+        """
+        This method is used to run the service here and block.
+        """
+        service_utils.run_main(
+            self.config,
+            self.connections,
+            self.states,
+            self.imported_service.main,
+            self.logger_args_dict
+        )
 
     def run_service(self):
         """
         This method is used to encapsulate the running of the service itself.
         """
         if self.process:
-            err = 'Subprocess is already running!'
-            self.log.error(err)
-            raise RuntimeError(err)
+            raise RuntimeError('Subprocess is already running!')
 
+        target = service_utils.run_service
+        args = (
+            self.config,
+            self.connections,
+            self.states,
+            self.logger_args_dict
+        )
+        self._run_target_in_background(target, args)
+
+    def run_service_blocking(self):
+        """
+        This method is used to run the service here and block.
+        """
+        service_utils.run_service(
+            self.config,
+            self.connections,
+            self.states,
+            self.logger_args_dict
+        )
+
+    def _run_target_in_background(self, target, args):
+        """
+        target::def Function to run in the background.
+        args::tuple(obj) Tuple of arguments for the target
+        """
+        self._setup_sigint_handler()
         self.process = Process(
-            target=service_utils.run_service,
-            args=(
-                self.config,
-                self.connections,
-                self.states,
-                self.logger_args_dict
-            )
+            target=target,
+            args=args
         )
         self.process.daemon = True
         self.process.start()
-        self._setup_sigint_handler()
 
     def _setup_sigint_handler(self):
         """

@@ -39,7 +39,7 @@ def set_new_workflow_id_on_logger(workflow_id, logger_args_dict):
     setup_package_logger(workflow_id, **logger_args_dict)
 
 
-def setup_package_logger(workflow_id,
+def setup_package_logger(workflow_id=None,
                          console_loglevel='INFO',
                          log_folder=None,
                          file_loglevel='INFO',
@@ -53,11 +53,13 @@ def setup_package_logger(workflow_id,
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(workflow_id)s - %(levelname)s - %(message)s'
     )
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(console_loglevel)
-    console_handler.setFormatter(formatter)
-    console_handler.addFilter(WorkflowIdFilter(workflow_id, name='workflow_id'))
-    logger.addHandler(console_handler)
+
+    if console_loglevel:
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(console_loglevel)
+        console_handler.setFormatter(formatter)
+        console_handler.addFilter(WorkflowIdFilter(workflow_id, name='workflow_id'))
+        logger.addHandler(console_handler)
 
     if log_folder:
         file_handler = logging.handlers.TimedRotatingFileHandler(
@@ -67,6 +69,7 @@ def setup_package_logger(workflow_id,
         )
         file_handler.setLevel(file_loglevel)
         file_handler.setFormatter(formatter)
+        file_handler.addFilter(WorkflowIdFilter(workflow_id, name='workflow_id'))
         logger.addHandler(file_handler)
 
     return logger

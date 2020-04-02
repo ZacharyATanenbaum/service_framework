@@ -6,7 +6,6 @@ import threading
 import uuid
 import zmq
 from service_framework.utils import (
-    config_utils,
     connection_utils,
     logging_utils,
     socket_utils,
@@ -165,6 +164,8 @@ def run_main(config, connections, states, main_func, logger_args_dict):
     if 'in' in states and states['in']:
         raise ValueError('In states do not work in main_mode. Please remove.')
 
+    logging_utils.setup_package_logger(**logger_args_dict)
+
     to_send = setup_to_send(
         states,
         connections,
@@ -218,6 +219,8 @@ def run_service(config, connections, states, logger_args_dict):
         backup_count: int,
     }
     """
+    logging_utils.setup_package_logger(**logger_args_dict)
+
     polling_list = get_polling_list(connections, states)
     sockets = [item['inbound_socket'] for item in polling_list]
     poller = socket_utils.get_poller_socket(sockets)
@@ -280,7 +283,7 @@ def run_service(config, connections, states, logger_args_dict):
             logging_utils.set_new_workflow_id_on_logger(None, logger_args_dict)
 
 
-def setup_addresses(addresses_path, imported_service, config):
+def setup_addresses(addresses, imported_service, config):
     """
     addrs_path::str Relative import path to the addresses file
     imported_service::module The imported service python file
@@ -304,14 +307,6 @@ def setup_addresses(addresses_path, imported_service, config):
         'config_key_1': 'config_val_1'
     }
     """
-    if not addresses_path:
-        LOG.info('No Address Path! Skipping...')
-        return {}
-
-    LOG.info('Loading addresses from "addresses_path": %s', addresses_path)
-    with open(addresses_path, 'r') as addresses_file:
-        addresses = json.load(addresses_file)
-
     if hasattr(imported_service, 'setup_addresses'):
         LOG.info('Found "setup_addresses" in service, Calling now...')
         addresses = imported_service.setup_addresses(addresses, config)
@@ -324,22 +319,22 @@ def setup_addresses(addresses_path, imported_service, config):
     return addresses
 
 
-def setup_config(config_path, unknown_args, imported_service):
+def setup_config(config, imported_service):
     """
-    config_path::str The relative path to the config file to be used
-    unknown_args::{'config_name': 'config_variable'} Unknown passed env variables
+    config::{} Config that has already been parsed
     imported_service::module The imported service python file
     return::{} ex. {**file_arguments, 'random_argument': 'HELLO'}
     """
+    if not hasattr(imported_service, 'config_model') and config:
+        err = 'Must provide a "config_model" func in the service if using a config.'
+        LOG.error(err)
+        raise ValueError(err)
+
     if not hasattr(imported_service, 'config_model'):
         LOG.warning('No "config_model" in Service File. Skipping config setup...')
         return {}
 
     LOG.info('Found "config_model", Setting up Config...')
-    config = config_utils.get_config(
-        config_path=config_path,
-        unknown_args=unknown_args
-    )
 
     if hasattr(imported_service, 'setup_config'):
         LOG.info('Found "setup_config" Function, Calling now...')

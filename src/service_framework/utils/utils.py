@@ -1,6 +1,7 @@
 """ Utility Functions for the Service/Test Frameworks """
 
 import importlib
+import json
 from logging import getLogger
 import os
 import signal
@@ -44,6 +45,17 @@ def convert_path_to_import(path):
 
     LOG.info('Returning Import Statement: %s', import_statement)
     return import_statement
+
+
+def get_json_from_rel_path(rel_path):
+    """
+    rel_path::str The relative path to the json file
+    """
+    if not rel_path:
+        return {}
+
+    with open(rel_path, 'r') as file_to_import:
+        return json.load(file_to_import)
 
 
 def import_python_file_from_cwd(path):
