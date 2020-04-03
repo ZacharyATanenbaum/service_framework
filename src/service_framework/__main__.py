@@ -17,7 +17,7 @@ def main():
         config = config_utils.get_config_from_unknown_args(unknown_args)
 
     print('Getting config from file: ', args.config_path)
-    config = utils.get_json_from_rel_path(args.config_path)
+    config = {**config, **utils.get_json_from_rel_path(args.config_path)}
 
     print('Getting Addresses from file: ', args.addresses_path)
     addresses = utils.get_json_from_rel_path(args.addresses_path)

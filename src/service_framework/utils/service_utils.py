@@ -307,6 +307,9 @@ def setup_addresses(addresses, imported_service, config):
         'config_key_1': 'config_val_1'
     }
     """
+    if not addresses:
+        return addresses
+
     if hasattr(imported_service, 'setup_addresses'):
         LOG.info('Found "setup_addresses" in service, Calling now...')
         addresses = imported_service.setup_addresses(addresses, config)
