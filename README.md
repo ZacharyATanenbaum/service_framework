@@ -15,8 +15,9 @@ pip install -e .
 
 
 ## Running
-### Base Command
-Run the following from the directory the Service Framework was locally built. As this directory houses the packaged Service Framework as a python "Egg" file.
+### From Command Line
+Run the following from the directory the Service Framework was locally built.
+As this directory houses the packaged Service Framework as a python "Egg" file.
 ```
 python -m service_framework
 
@@ -24,7 +25,7 @@ python -m service_framework
 
 service_framework
 ```
-### Useful Arguments
+#### Useful Comamnd Line Arguments
 Below are a few useful arguments...
 ```
 # Used for Service Setup
@@ -36,9 +37,51 @@ Below are a few useful arguments...
 # Used for Logging
 -cl Console Log Level
 ```
+### As An Object
+To allow multiple services to be run in sync and programmatically created or destroyed it has been neatly packaged into a class for use.
+The [Service Class](src/service_framework/service) should mirror the same requirements as running the framework from the command line.
+Quite frankly, because running it from the command line just uses this class underneath.
+Below are the commands on how to use this class:
+```
+# Useage Example
+
+from service_framework.service import Service
+
+service_relative_path = './path_to_service_file/service_specification.py'
+config = {'some_config_key': 'some_config_value'}
+addresses = {'look below this can get complicated'}
+
+my_service = Service(service_relative_path, config=config, addresses=addresses)
+
+
+# To run the service as a "main service" or in "main mode" in the background.
+my_service.run_service_as_main()
+
+# To run the service regularly and in the background/non-blocking.
+my_service.run_service()
+
+# To stop the service's execution.
+my_service.stop_service()
+
+# To run the service in it's respective mode and block (stop execution past this line):
+my_service.run_service_as_main_blocking()
+my_service.run_service_blocking()
+``` 
+
+#### Useful Optional Arguments
+Here are some other, optional parameters, that can be passed into the Service object:
+```
+console_loglevel='INFO'
+log_folder=None
+file_loglevel='INFO'
+backup_count=240
+```
+These Parameters are the same as their command line compatriates.
+
 
 #### Addresses Path
-If the addresses path is provided, the addresses json file will be loaded into the service framework. This allows the framework to setup each connection of the services connections.
+If the addresses path is provided, the addresses json file will be loaded into the service framework.
+This allows the framework to setup each connection of the services connections.
 Example:
 ```
 # Command

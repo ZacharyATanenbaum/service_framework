@@ -120,6 +120,13 @@ class Service:
             self.logger_args_dict
         )
 
+    def stop_service(self):
+        """
+        This method is used to stop a currently running service.
+        """
+        self.process.terminate()
+        self.process = None
+
     def _run_target_in_background(self, target, args):
         """
         target::def Function to run in the background.
