@@ -45,7 +45,7 @@ Below are the commands on how to use this class:
 ```
 # Useage Example
 
-from service_framework.service import Service
+from service_framework import Service
 
 service_relative_path = './path_to_service_file/service_specification.py'
 config = {'some_config_key': 'some_config_value'}
