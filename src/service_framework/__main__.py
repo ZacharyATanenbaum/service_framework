@@ -117,6 +117,7 @@ class Service:
         """
         This method is used to run the service here and block.
         """
+        self._setup_sigint_handler()
         service_utils.run_main(
             self.config,
             self.connections,
@@ -145,6 +146,7 @@ class Service:
         """
         This method is used to run the service here and block.
         """
+        self._setup_sigint_handler()
         service_utils.run_service(
             self.config,
             self.connections,
