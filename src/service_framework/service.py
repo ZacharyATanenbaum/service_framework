@@ -137,7 +137,6 @@ class Service:
             target=target,
             args=args
         )
-        self.process.daemon = True
         self.process.start()
 
     def _setup_sigint_handler(self):
