@@ -187,8 +187,8 @@ def run_main(service_path, addresses, config, logger_args_dict):
     )
 
     service_thread = threading.Thread(
-        target=run_service,
-        args=(config, connections, states, logger_args_dict)
+        target=run_service_loop,
+        args=(connections, states, config, logger_args_dict)
     )
 
     def sigint_handler(signum, _):
@@ -246,6 +246,43 @@ def run_service(service_path, addresses, config, logger_args_dict):
         logger_args_dict
     )
 
+    run_service_loop(
+        connections,
+        states,
+        config,
+        logger_args_dict
+    )
+
+
+def run_service_loop(connections, states, config, logger_args_dict):
+    """
+    connections = {
+        'in': {
+            'connection_name': BaseInConnector(),
+        }
+        'out': {
+            'connection_name': BaseOutConnector(),
+        },
+    }
+    states = {
+        'in': {
+            'state_name': BaseState(),
+        },
+        'out': {
+            'state_name': BaseState(),
+        },
+    }
+    config = {
+        'config_1': 'thingy',
+        'config_2': 12345
+    }
+    logger_args_dict = {
+        console_loglevel: str,
+        log_path: str,
+        file_loglevel: str,
+        backup_count: int,
+    }
+    """
     polling_list = get_polling_list(connections, states)
     sockets = [item['inbound_socket'] for item in polling_list]
     poller = socket_utils.get_poller_socket(sockets)
@@ -401,6 +438,9 @@ def setup_connections(addresses, imported_service, config):
         'states': {},
     }
     imported_service::module The imported service python file
+    config = {
+        'config_key_1': 'config_val_1'
+    }
     return = {
         'in': {
             'connection_name': BaseInConnector(),
@@ -408,9 +448,6 @@ def setup_connections(addresses, imported_service, config):
         'out': {
             'connection_name': BaseOutConnector(),
         },
-    }
-    config = {
-        'config_key_1': 'config_val_1'
     }
     """
     if not hasattr(imported_service, 'connection_models'):

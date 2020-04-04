@@ -341,17 +341,10 @@ def test_service_utils__run_main__connection_in_will_error():
     Explicitly state that inbound connections will not function
     if using the main_mode of the service framework.
     """
-    imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
-
-    config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    conns = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
-    main_func = lambda to_send, config: True
 
     with pytest.raises(ValueError):
-        service_utils.run_main(config, conns, states, main_func, {})
+        service_utils.run_main(SERVICE_PATH, cur_addresses, {}, {})
 
 
 def test_service_utils__run_main__main_runs_successfully():
@@ -359,16 +352,8 @@ def test_service_utils__run_main__main_runs_successfully():
     Test that the service_framework main mode will run a "hello world"
     main method.
     """
-    imported_service = utils.import_python_file_from_cwd(MAIN_SERVICE_PATH)
-
-    config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    conns = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
-    main_func = lambda to_send, config: True
-
-    service_utils.run_main(config, conns, states, main_func, {})
+    service_utils.run_main(MAIN_SERVICE_PATH, cur_addresses, {}, {})
 
 
 def test_service_utils__setup_sigint_handler_func__sucessfully_called_custom_sigint_handler():
