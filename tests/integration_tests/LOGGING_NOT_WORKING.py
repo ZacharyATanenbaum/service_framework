@@ -37,16 +37,22 @@ requester = Service(
     REQUESTER_PATH,
     addresses=REQUESTER_ADDRS,
     config=REQUESTER_CONFIG,
-    log_path=f'{BASE_DIR}/logs/requester.log'
+    log_path=f'{BASE_DIR}/logs/requester.log',
+    console_loglevel=None,
+    file_loglevel='DEBUG'
 )
 replyer = Service(
     REPLYER_PATH,
     addresses=REPLYER_ADDRS,
-    log_path=f'{BASE_DIR}/logs/replyer.log'
+    log_path=f'{BASE_DIR}/logs/replyer.log',
+    console_loglevel=None
 )
 
 replyer.run_service()
-requester.run_service()
-
 import time
+time.sleep(0.5)
+requester.run_service_as_main()
+
+print('\nSleepy time\b')
 time.sleep(1)
+print('\nDone Sleepy Time!\n')

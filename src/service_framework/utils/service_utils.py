@@ -283,6 +283,8 @@ def run_service_loop(connections, states, config, logger_args_dict):
         backup_count: int,
     }
     """
+    logging_utils.setup_package_logger(**logger_args_dict)
+
     polling_list = get_polling_list(connections, states)
     sockets = [item['inbound_socket'] for item in polling_list]
     poller = socket_utils.get_poller_socket(sockets)
