@@ -1,6 +1,7 @@
 """ File for housing logging utilities """
 
 import logging
+from logging.handlers import TimedRotatingFileHandler
 from service_framework.utils.constants import PACKAGE_LOGGER_NAME
 
 
@@ -41,9 +42,9 @@ def set_new_workflow_id_on_logger(workflow_id, logger_args_dict):
 
 def setup_package_logger(workflow_id=None,
                          console_loglevel='INFO',
-                         log_folder=None,
+                         log_path=None,
                          file_loglevel='INFO',
-                         backup_count=240):
+                         backup_count=24):
     """
     Pass
     """
@@ -61,9 +62,9 @@ def setup_package_logger(workflow_id=None,
         console_handler.addFilter(WorkflowIdFilter(workflow_id, name='workflow_id'))
         logger.addHandler(console_handler)
 
-    if log_folder:
-        file_handler = logging.handlers.TimedRotatingFileHandler(
-            log_folder,
+    if log_path:
+        file_handler = TimedRotatingFileHandler(
+            log_path,
             when='h',
             backupCount=backup_count
         )

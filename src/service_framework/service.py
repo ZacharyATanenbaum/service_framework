@@ -15,9 +15,9 @@ class Service:
                  config=None,
                  addresses=None,
                  console_loglevel='INFO',
-                 log_folder=None,
+                 log_path=None,
                  file_loglevel='INFO',
-                 backup_count=240):
+                 backup_count=24):
         """
         service_path = './services/other_folder/service_file.py'
         config = {
@@ -36,13 +36,13 @@ class Service:
             'states': {}
         }
         console_loglevel::str Level of the console logger (if used, None to disable)
-        log_folder::str The location of the folder to output logs (if used, None to disable)
+        log_path::str The location of the folder to output logs (if used, None to disable)
         file_loglevel::str The level of the file logger (if used)
         backup_count::int Number of hours that should be saved for file logger
         """
         self.logger_args_dict = {
             'console_loglevel': console_loglevel,
-            'log_folder': log_folder,
+            'log_path': log_path,
             'file_loglevel': file_loglevel,
             'backup_count': backup_count
         }

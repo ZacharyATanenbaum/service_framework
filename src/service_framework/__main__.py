@@ -27,7 +27,7 @@ def main():
         config=config,
         addresses=addresses,
         console_loglevel=args.console_loglevel,
-        log_folder=args.log_folder,
+        log_path=args.log_path,
         file_loglevel=args.file_loglevel,
         backup_count=args.backup_count
     )
@@ -52,9 +52,9 @@ def get_arguments():
     parser.add_argument('-m', '--main_mode', action='store_true', help='Run as main.')
 
     parser.add_argument('-cl', '--console_loglevel', default='INFO', help='See name')
-    parser.add_argument('-bc', '--backup_count', default=240, help='Num of hourly file backups')
+    parser.add_argument('-bc', '--backup_count', default=24, help='Num of hourly file backups')
     parser.add_argument('-f', '--file_loglevel', default='INFO', help='See name')
-    parser.add_argument('-l', '--log_folder', default=None, help='Log file folder')
+    parser.add_argument('-l', '--log_path', default=None, help='Log file path')
 
     args, unknown_args = parser.parse_known_args()
     print('Using Arguments:', args)

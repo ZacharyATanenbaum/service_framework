@@ -36,6 +36,9 @@ Below are a few useful arguments...
 
 # Used for Logging
 -cl Console Log Level
+-f  File Log Level
+-bc Backup Count (Number of hourly log files to keep)
+-l  Log Path (Relative)
 ```
 ### As An Object
 To allow multiple services to be run in sync and programmatically created or destroyed it has been neatly packaged into a class for use.
@@ -72,11 +75,20 @@ my_service.run_service_blocking()
 Here are some other, optional parameters, that can be passed into the Service object:
 ```
 console_loglevel='INFO'
-log_folder=None
+log_path=None
 file_loglevel='INFO'
-backup_count=240
+backup_count=24
 ```
 These Parameters are the same as their command line compatriates.
+
+
+#### Logging
+To log inside of your service file import the logger that's precreated.
+```
+from service_framework import get_logger
+
+LOG = get_logger()
+```
 
 
 #### Addresses Path

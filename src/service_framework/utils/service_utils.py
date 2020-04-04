@@ -153,7 +153,7 @@ def run_main(config, connections, states, main_func, logger_args_dict):
     main_func::def(to_send, config, LOG)
     logger_args_dict = {
         console_loglevel: str,
-        log_folder: None,
+        log_path: str,
         file_loglevel: str,
         backup_count: int,
     }

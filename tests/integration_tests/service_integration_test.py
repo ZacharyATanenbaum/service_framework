@@ -1,21 +1,73 @@
 """ File that houses all of the integration tests for the Service class """
 
+from service_framework import Service
+
+BASE_DIR = './tests/integration_tests'
+
+DO_NOTHING_PATH = f'{BASE_DIR}/data/service_integration_test/do_nothing_service.py'
+REPLYER_PATH = f'{BASE_DIR}/data/service_integration_test/replyer_service.py'
+REQUESTER_PATH = f'{BASE_DIR}/data/service_integration_test/requester_service.py'
+
+REPLYER_ADDRS = {
+    "connections": {
+        "in": {
+            "reply": {
+                "replyer": "127.0.0.1:18900"
+            }
+        }
+    }
+}
+
+REQUESTER_ADDRS = {
+    "connections": {
+        "out": {
+            "request": {
+                "requester": "127.0.0.1:18900"
+            }
+        }
+    }
+}
+
+REQUESTER_CONFIG = {
+    'num_req_to_send': 1
+}
+
+
 def test_service__init__service_can_be_constructed_with_just_service_path():
     """
     Make sure the only thing the Service Class needs is a service_path.
     """
-
-
-def test_service__init__console_log_functions_properly():
-    """
-    Make sure the console loglevel functions properly.
-    """
+    service = Service(DO_NOTHING_PATH)
+    service.run_service()
+    service.stop_service()
 
 
 def test_service__init__file_log_functions_properly():
     """
     Make sure the file loglevel and log folder function properly.
     """
+    requester = Service(
+        REQUESTER_PATH,
+        addresses=REQUESTER_ADDRS,
+        config=REQUESTER_CONFIG,
+        log_path=f'{BASE_DIR}/logs/requester.log',
+        file_loglevel='DEBUG'
+    )
+    replyer = Service(
+        REPLYER_PATH,
+        addresses=REPLYER_ADDRS,
+        log_path=f'{BASE_DIR}/logs/replyer.log',
+        file_loglevel='DEBUG'
+    )
+
+    replyer.run_service()
+    requester.run_service()
+
+    import time
+    time.sleep(1)
+
+    raise RuntimeError()
+
 
 
 def test_service__del__make_sure_service_cleans_up_properly():
