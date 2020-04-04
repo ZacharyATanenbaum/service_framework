@@ -46,9 +46,21 @@ class Service:
             'file_loglevel': file_loglevel,
             'backup_count': backup_count
         }
-        self.service_path = service_path
-        self.addresses = addresses
-        self.config = config
+        logging_utils.setup_package_logger(self.logger_args_dict)
+
+        self.imported_service = utils.import_python_file_from_cwd(service_path)
+        self.config = service_utils.setup_config(config, self.imported_service)
+        self.addresses = service_utils.setup_addresses(addresses, self.imported_service, config)
+        self.connections = service_utils.setup_connections(addresses, self.imported_service, config)
+        self.states = service_utils.setup_states(addresses, self.imported_service, config)
+
+        service_utils.setup_sigint_handler_func(
+            self.imported_service,
+            self.config,
+            self.connections,
+            self.states,
+            self.logger_args_dict
+        )
 
         self.process = None
 
@@ -65,8 +77,9 @@ class Service:
         """
         target = service_utils.run_main
         args = (
-            self.service_path,
-            self.addresses,
+            self.imported_service.main,
+            self.connections,
+            self.states,
             self.config,
             self.logger_args_dict
         )
@@ -77,8 +90,9 @@ class Service:
         This method is used to run the service here and block.
         """
         service_utils.run_main(
-            self.service_path,
-            self.addresses,
+            self.imported_service.main,
+            self.connections,
+            self.states,
             self.config,
             self.logger_args_dict
         )
@@ -89,8 +103,8 @@ class Service:
         """
         target = service_utils.run_service
         args = (
-            self.service_path,
-            self.addresses,
+            self.connections,
+            self.states,
             self.config,
             self.logger_args_dict
         )
@@ -101,8 +115,8 @@ class Service:
         This method is used to run the service here and block.
         """
         service_utils.run_service(
-            self.service_path,
-            self.addresses,
+            self.connections,
+            self.states,
             self.config,
             self.logger_args_dict
         )

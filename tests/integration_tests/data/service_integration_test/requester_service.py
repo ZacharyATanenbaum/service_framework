@@ -9,6 +9,7 @@ def setup_config(config):
     """
     Make config arguments the proper type!
     """
+    LOG.info('Setting up config!')
     config['num_req_to_send'] = int(config['num_req_to_send'])
     return config
 

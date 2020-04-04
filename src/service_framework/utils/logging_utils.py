@@ -49,10 +49,11 @@ def setup_package_logger(workflow_id=None,
     Pass
     """
     logger = logging.getLogger(PACKAGE_LOGGER_NAME)
+    logger.setLevel('INFO')
 
     if logger.handlers:
         logger.debug('"%s" already setup - skipping logger...', PACKAGE_LOGGER_NAME)
-        return
+        return logger
 
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(workflow_id)s - %(levelname)s - %(message)s'

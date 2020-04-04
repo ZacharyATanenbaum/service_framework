@@ -1,7 +1,5 @@
 """ File to house service utility functions """
 
-import json
-import logging
 import threading
 import uuid
 import zmq
@@ -14,7 +12,7 @@ from service_framework.utils import (
     validation_utils
 )
 
-LOG = logging.getLogger(__name__)
+LOG = logging_utils.get_logger()
 RUN_FLAG = True
 
 
@@ -128,7 +126,7 @@ def get_polling_list(connections, states):
     return polling_list
 
 
-def run_main(service_path, addresses, config, logger_args_dict):
+def run_main(main_func, connections, states, config, logger_args_dict):
     """
     This is used to run a program that will be on the leading edge of a
     Python Service Framework graph or a program that will not respond to
@@ -156,22 +154,6 @@ def run_main(service_path, addresses, config, logger_args_dict):
         backup_count: int,
     }
     """
-    logging_utils.setup_package_logger(**logger_args_dict)
-
-    imported_service = utils.import_python_file_from_cwd(service_path)
-    config = setup_config(config, imported_service)
-    addresses = setup_addresses(addresses, imported_service, config)
-    connections = setup_connections(addresses, imported_service, config)
-    states = setup_states(addresses, imported_service, config)
-
-    setup_sigint_handler_func(
-        imported_service,
-        config,
-        connections,
-        states,
-        logger_args_dict
-    )
-
     if 'in' in connections and connections['in']:
         raise ValueError('In connections do not work in main_mode. Please remove.')
 
@@ -187,7 +169,7 @@ def run_main(service_path, addresses, config, logger_args_dict):
     )
 
     service_thread = threading.Thread(
-        target=run_service_loop,
+        target=run_service,
         args=(connections, states, config, logger_args_dict)
     )
 
@@ -200,61 +182,12 @@ def run_main(service_path, addresses, config, logger_args_dict):
     service_thread.daemon = True
     service_thread.start()
 
-    imported_service.main(to_send, config)
+    main_func(to_send, config)
     global RUN_FLAG
     RUN_FLAG = False # Not needed, but makes tests run much faster
 
 
-def run_service(service_path, addresses, config, logger_args_dict):
-    """
-    service_path = './services/other_folder/service_file.py'
-    addresses = {
-        'connections' {
-            'in': {
-                'connection_name': {
-                    'socket_name': str
-                },
-            },
-            'out': {},
-        },
-        'states': {}
-    }
-    config = {
-        'config_1': 'thingy',
-        'config_2': 12345
-    }
-    logger_args_dict = {
-        console_loglevel: str,
-        log_path: str,
-        file_loglevel: str,
-        backup_count: int,
-    }
-    """
-    logging_utils.setup_package_logger(**logger_args_dict)
-
-    imported_service = utils.import_python_file_from_cwd(service_path)
-    config = setup_config(config, imported_service)
-    addresses = setup_addresses(addresses, imported_service, config)
-    connections = setup_connections(addresses, imported_service, config)
-    states = setup_states(addresses, imported_service, config)
-
-    setup_sigint_handler_func(
-        imported_service,
-        config,
-        connections,
-        states,
-        logger_args_dict
-    )
-
-    run_service_loop(
-        connections,
-        states,
-        config,
-        logger_args_dict
-    )
-
-
-def run_service_loop(connections, states, config, logger_args_dict):
+def run_service(connections, states, config, logger_args_dict):
     """
     connections = {
         'in': {
@@ -283,8 +216,6 @@ def run_service_loop(connections, states, config, logger_args_dict):
         backup_count: int,
     }
     """
-    logging_utils.setup_package_logger(**logger_args_dict)
-
     polling_list = get_polling_list(connections, states)
     sockets = [item['inbound_socket'] for item in polling_list]
     poller = socket_utils.get_poller_socket(sockets)

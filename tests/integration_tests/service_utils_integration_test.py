@@ -342,9 +342,16 @@ def test_service_utils__run_main__connection_in_will_error():
     if using the main_mode of the service framework.
     """
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
+    imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
+
+    config = {}
+    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
+    conns = service_utils.setup_connections(addresses, imported_service, config)
+    states = service_utils.setup_states(addresses, imported_service, config)
+    main_func = lambda to_send, config: True
 
     with pytest.raises(ValueError):
-        service_utils.run_main(SERVICE_PATH, cur_addresses, {}, {})
+        service_utils.run_main(config, conns, states, main_func, {})
 
 
 def test_service_utils__run_main__main_runs_successfully():
@@ -353,7 +360,21 @@ def test_service_utils__run_main__main_runs_successfully():
     main method.
     """
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    service_utils.run_main(MAIN_SERVICE_PATH, cur_addresses, {}, {})
+    config = {}
+
+    imported_service = utils.import_python_file_from_cwd(MAIN_SERVICE_PATH)
+    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
+    connections = service_utils.setup_connections(addresses, imported_service, config)
+    states = service_utils.setup_states(addresses, imported_service, config)
+
+
+    service_utils.run_main(
+        imported_service.main,
+        connections,
+        states,
+        config,
+        {}
+    )
 
 
 def test_service_utils__setup_sigint_handler_func__sucessfully_called_custom_sigint_handler():
