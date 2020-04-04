@@ -1,7 +1,7 @@
 """ File to house the service class """
 
 from multiprocessing import Process
-from service_framework.utils import service_utils, utils
+from service_framework.utils import logging_utils, service_utils, utils
 
 
 class Service:
@@ -12,8 +12,8 @@ class Service:
 
     def __init__(self,
                  service_path,
-                 config=None,
                  addresses=None,
+                 config=None,
                  console_loglevel='INFO',
                  log_path=None,
                  file_loglevel='INFO',
@@ -46,12 +46,9 @@ class Service:
             'file_loglevel': file_loglevel,
             'backup_count': backup_count
         }
-
-        self.imported_service = utils.import_python_file_from_cwd(service_path)
-        self.config = service_utils.setup_config(config, self.imported_service)
-        self.addresses = service_utils.setup_addresses(addresses, self.imported_service, config)
-        self.connections = service_utils.setup_connections(addresses, self.imported_service, config)
-        self.states = service_utils.setup_states(addresses, self.imported_service, config)
+        self.service_path = service_path
+        self.addresses = addresses
+        self.config = config
 
         self.process = None
 
@@ -66,15 +63,11 @@ class Service:
         """
         This method is used to encapsulate the running of the service main.
         """
-        if self.process:
-            raise RuntimeError('Subprocess is already running!')
-
         target = service_utils.run_main
         args = (
+            self.service_path,
+            self.addresses,
             self.config,
-            self.connections,
-            self.states,
-            self.imported_service.main,
             self.logger_args_dict
         )
         self._run_target_in_background(target, args)
@@ -83,12 +76,10 @@ class Service:
         """
         This method is used to run the service here and block.
         """
-        self._setup_sigint_handler()
         service_utils.run_main(
+            self.service_path,
+            self.addresses,
             self.config,
-            self.connections,
-            self.states,
-            self.imported_service.main,
             self.logger_args_dict
         )
 
@@ -96,14 +87,11 @@ class Service:
         """
         This method is used to encapsulate the running of the service itself.
         """
-        if self.process:
-            raise RuntimeError('Subprocess is already running!')
-
         target = service_utils.run_service
         args = (
+            self.service_path,
+            self.addresses,
             self.config,
-            self.connections,
-            self.states,
             self.logger_args_dict
         )
         self._run_target_in_background(target, args)
@@ -112,11 +100,10 @@ class Service:
         """
         This method is used to run the service here and block.
         """
-        self._setup_sigint_handler()
         service_utils.run_service(
+            self.service_path,
+            self.addresses,
             self.config,
-            self.connections,
-            self.states,
             self.logger_args_dict
         )
 
@@ -132,21 +119,11 @@ class Service:
         target::def Function to run in the background.
         args::tuple(obj) Tuple of arguments for the target
         """
-        self._setup_sigint_handler()
+        if self.process:
+            raise RuntimeError('Subprocess is already running!')
+
         self.process = Process(
             target=target,
             args=args
         )
         self.process.start()
-
-    def _setup_sigint_handler(self):
-        """
-        Used to setup the sigint handler when needed.
-        """
-        service_utils.setup_sigint_handler_func(
-            self.imported_service,
-            self.config,
-            self.connections,
-            self.states,
-            self.logger_args_dict
-        )

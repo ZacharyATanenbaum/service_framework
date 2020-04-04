@@ -46,6 +46,8 @@ def test_service__init__file_log_functions_properly():
     """
     Make sure the file loglevel and log folder function properly.
     """
+    # TODO FINISH
+    """
     requester = Service(
         REQUESTER_PATH,
         addresses=REQUESTER_ADDRS,
@@ -67,7 +69,7 @@ def test_service__init__file_log_functions_properly():
     time.sleep(1)
 
     raise RuntimeError()
-
+    """
 
 
 def test_service__del__make_sure_service_cleans_up_properly():

@@ -24,8 +24,8 @@ def main():
 
     service = Service(
         args.service_path,
-        config=config,
         addresses=addresses,
+        config=config,
         console_loglevel=args.console_loglevel,
         log_path=args.log_path,
         file_loglevel=args.file_loglevel,

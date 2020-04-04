@@ -128,29 +128,27 @@ def get_polling_list(connections, states):
     return polling_list
 
 
-def run_main(config, connections, states, main_func, logger_args_dict):
+def run_main(service_path, addresses, config, logger_args_dict):
     """
     This is used to run a program that will be on the leading edge of a
     Python Service Framework graph or a program that will not respond to
     events.
-    config = {'config_arg_1': 'config_value_1', ...}
-    connections = {
-        'in': {
-            'connection_name': BaseConnector(),
+    service_path = './services/other_folder/service_file.py'
+    addresses = {
+        'connections' {
+            'in': {
+                'connection_name': {
+                    'socket_name': str
+                },
+            },
+            'out': {},
         },
-        'out': {
-            'connection_name': BaseConnector(),
-        },
+        'states': {}
     }
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
-        },
+    config = {
+        'config_1': 'thingy',
+        'config_2': 12345
     }
-    main_func::def(to_send, config, LOG)
     logger_args_dict = {
         console_loglevel: str,
         log_path: str,
@@ -158,13 +156,27 @@ def run_main(config, connections, states, main_func, logger_args_dict):
         backup_count: int,
     }
     """
+    logging_utils.setup_package_logger(**logger_args_dict)
+
+    imported_service = utils.import_python_file_from_cwd(service_path)
+    config = setup_config(config, imported_service)
+    addresses = setup_addresses(addresses, imported_service, config)
+    connections = setup_connections(addresses, imported_service, config)
+    states = setup_states(addresses, imported_service, config)
+
+    setup_sigint_handler_func(
+        imported_service,
+        config,
+        connections,
+        states,
+        logger_args_dict
+    )
+
     if 'in' in connections and connections['in']:
         raise ValueError('In connections do not work in main_mode. Please remove.')
 
     if 'in' in states and states['in']:
         raise ValueError('In states do not work in main_mode. Please remove.')
-
-    logging_utils.setup_package_logger(**logger_args_dict)
 
     to_send = setup_to_send(
         states,
@@ -188,38 +200,51 @@ def run_main(config, connections, states, main_func, logger_args_dict):
     service_thread.daemon = True
     service_thread.start()
 
-    main_func(to_send, config)
+    imported_service.main(to_send, config)
     global RUN_FLAG
     RUN_FLAG = False # Not needed, but makes tests run much faster
 
 
-def run_service(config, connections, states, logger_args_dict):
+def run_service(service_path, addresses, config, logger_args_dict):
     """
-    config = {'config_arg_1': 'config_value_1', ...}
-    connections = {
-        'in': {
-            'connection_name': BaseConnector(),
+    service_path = './services/other_folder/service_file.py'
+    addresses = {
+        'connections' {
+            'in': {
+                'connection_name': {
+                    'socket_name': str
+                },
+            },
+            'out': {},
         },
-        'out': {
-            'connection_name': BaseConnector(),
-        },
+        'states': {}
     }
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
-        },
+    config = {
+        'config_1': 'thingy',
+        'config_2': 12345
     }
     logger_args_dict = {
         console_loglevel: str,
-        log_folder: None,
+        log_path: str,
         file_loglevel: str,
         backup_count: int,
     }
     """
     logging_utils.setup_package_logger(**logger_args_dict)
+
+    imported_service = utils.import_python_file_from_cwd(service_path)
+    config = setup_config(config, imported_service)
+    addresses = setup_addresses(addresses, imported_service, config)
+    connections = setup_connections(addresses, imported_service, config)
+    states = setup_states(addresses, imported_service, config)
+
+    setup_sigint_handler_func(
+        imported_service,
+        config,
+        connections,
+        states,
+        logger_args_dict
+    )
 
     polling_list = get_polling_list(connections, states)
     sockets = [item['inbound_socket'] for item in polling_list]

@@ -37,14 +37,12 @@ requester = Service(
     REQUESTER_PATH,
     addresses=REQUESTER_ADDRS,
     config=REQUESTER_CONFIG,
-    log_path=f'{BASE_DIR}/logs/requester.log',
-    file_loglevel='DEBUG'
+    log_path=f'{BASE_DIR}/logs/requester.log'
 )
 replyer = Service(
     REPLYER_PATH,
     addresses=REPLYER_ADDRS,
-    log_path=f'{BASE_DIR}/logs/replyer.log',
-    file_loglevel='DEBUG'
+    log_path=f'{BASE_DIR}/logs/replyer.log'
 )
 
 replyer.run_service()
