@@ -46,7 +46,7 @@ class Service:
             'file_loglevel': file_loglevel,
             'backup_count': backup_count
         }
-        logging_utils.setup_package_logger(self.logger_args_dict)
+        logging_utils.setup_package_logger(**self.logger_args_dict)
 
         self.imported_service = utils.import_python_file_from_cwd(service_path)
         self.config = service_utils.setup_config(config, self.imported_service)
