@@ -216,6 +216,7 @@ def run_service(connections, states, config, logger_args_dict):
         backup_count: int,
     }
     """
+    LOG.debug('Extracting Sockets to Poll...')
     polling_list = get_polling_list(connections, states)
     sockets = [item['inbound_socket'] for item in polling_list]
     poller = socket_utils.get_poller_socket(sockets)
