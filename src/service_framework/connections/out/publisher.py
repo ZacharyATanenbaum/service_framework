@@ -16,14 +16,11 @@ class Publisher(BaseConnection):
     """
     def __init__(self, model, connection_addresses):
         super().__init__(model, connection_addresses)
-        self.context = zmq.Context()
+        self.connection_addresses = connection_addresses
+        self.context = None
+        self.model = model
         self.topic = self._setup_topic(model)
-
-        self.socket = self._setup_publisher_socket(
-            connection_addresses['publisher'],
-            self.context,
-            model
-        )
+        self.socket = None
 
     def __del__(self):
         if hasattr(self, 'socket'):
@@ -130,8 +127,21 @@ class Publisher(BaseConnection):
             'return_validator': def(return_args)
             'return_function': def(return_args),
         }]
-"""
+        """
         return []
+
+    def runtime_setup(self):
+        """
+        Method called directly after instantiation to conduct all
+        runtime required setup. I.E. Setting up a zmq.Context().
+        """
+        self.context = zmq.Context()
+
+        self.socket = self._setup_publisher_socket(
+            self.connection_addresses['publisher'],
+            self.context,
+            self.model
+        )
 
     def send(self, payload):
         """

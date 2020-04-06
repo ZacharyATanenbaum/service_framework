@@ -1,14 +1,14 @@
 """ File to house local variables with full update in state """
 
-from logging import getLogger
 import zmq
 
+from service_framework.utils.logging_utils import get_logger
 from service_framework.utils.msgpack_utils import msg_pack, msg_unpack
 from service_framework.utils.socket_utils import get_subscriber_socket, get_requester_socket
 from service_framework.utils.state_utils import BaseState
 from service_framework.utils.update_utils import perform_delta_update
 
-LOG = getLogger(__name__)
+LOG = get_logger()
 
 
 class DeltaUpdateIn(BaseState):
@@ -18,25 +18,19 @@ class DeltaUpdateIn(BaseState):
     """
     def __init__(self, model, state_addresses):
         super().__init__(model, state_addresses)
-        self.context = zmq.Context()
+        self.context = None
         self.current_state = {}
         self.current_num = -1
+        self.model = model
+        self.state_addresses = state_addresses
 
-        self.sub_socket = self._setup_subscriber_socket(
-            state_addresses['subscriber'],
-            self.context,
-            model
-        )
-
-        self.req_socket = get_requester_socket(
-            state_addresses['requester'],
-            self.context
-        )
+        self.sub_socket = None
+        self.req_socket = None
 
     def __del__(self):
-        if hasattr(self, 'sub_socket'):
+        if hasattr(self, 'sub_socket') and self.sub_socket:
             self.sub_socket.close()
-        if hasattr(self, 'req_socket'):
+        if hasattr(self, 'req_socket') and self.req_socket:
             self.req_socket.close()
 
     @staticmethod
@@ -197,6 +191,24 @@ class DeltaUpdateIn(BaseState):
         return::{} The current state as a dict
         """
         return self.current_state
+
+    def runtime_setup(self):
+        """
+        This method is used for the state to do any setup that must occur during
+        runtime. I.E. setting up a zmq.Context.
+        """
+        self.context = zmq.Context()
+
+        self.sub_socket = self._setup_subscriber_socket(
+            self.state_addresses['subscriber'],
+            self.context,
+            self.model
+        )
+
+        self.req_socket = get_requester_socket(
+            self.state_addresses['requester'],
+            self.context
+        )
 
     def _decode_message(self, binary_message):
         """

@@ -25,17 +25,17 @@ RETURN_PAYLOAD = {
 }
 
 
-def test_service_utils__setup_connections__no_connection_models_case():
+def test_service_utils__setup_service_connections__no_connection_models_case():
     """
     Make sure if there's no connection models then an empty dict is returned.
     """
     imported_service = utils.import_python_file_from_cwd(WO_SERVICE_PATH)
     config = {}
-    conns = service_utils.setup_connections(ADDRESSES_PATH, imported_service, config)
+    conns = service_utils.setup_service_connections(ADDRESSES_PATH, imported_service, config)
     assert conns == {}
 
 
-def test_service_utils__setup_connections__connection_models_case():
+def test_service_utils__setup_service_connections__connection_models_case():
     """
     Make sure if there are connection models they are properly loaded.
     """
@@ -43,38 +43,38 @@ def test_service_utils__setup_connections__connection_models_case():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    conns = service_utils.setup_connections(addresses, imported_service, config)
+    conns = service_utils.setup_service_connections(addresses, imported_service, config)
     conn = conns['in']['in_connection_1']
     assert conn.__class__.__name__ == 'Replyer'
 
 
-def test_service_utils__setup_connections__connection_models_and_setup_conn_models_case():
+def test_service_utils__setup_service_connections__connection_models_and_setup_conn_models_case():
     """
-    Make sure setup_connections is properly called.
+    Make sure setup_service_connections is properly called.
     """
     imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    conns = service_utils.setup_connections(addresses, imported_service, config)
+    conns = service_utils.setup_service_connections(addresses, imported_service, config)
     conn = conns['out']['out_connection_1']
     assert conn.__class__.__name__ == 'Requester'
 
 
-def test_service_utils__setup_states__state_models_case():
+def test_service_utils__setup_service_states__state_models_case():
     """
-    Make sure setup_states actually works properly.
+    Make sure setup_service_states actually works properly.
     """
     imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     state = states['in']['in_state_1']
     assert state.__class__.__name__ == 'FullUpdateIn'
 
 
-def test_service_utils__setup_states__state_models_and_setup_state_models_case():
+def test_service_utils__setup_service_states__state_models_and_setup_state_models_case():
     """
     Make sure setup_state_models actually works properly...
     """
@@ -82,7 +82,7 @@ def test_service_utils__setup_states__state_models_and_setup_state_models_case()
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     state = states['out']['out_state_1']
     assert state.__class__.__name__ == 'FullUpdateOut'
 
@@ -96,8 +96,8 @@ def test_service_utils__setup_to_send__invalid_output_type_for_to_send():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(states, connections, {})
     args = {'this_is_a_test_field': 'Hi'}
 
@@ -113,8 +113,8 @@ def test_service_utils__setup_to_send__valid_connection_output_type_for_to_send(
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(states, connections, {})
 
     out_connection = connections['out']['out_connection_1']
@@ -131,8 +131,8 @@ def test_service_utils__setup_to_send__valid_state_output_type_for_to_send():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(states, connections, {})
 
     out_state = states['out']['out_state_1']
@@ -159,8 +159,8 @@ def test_service_utils__setup_to_send__args_are_put_into_to_send_payload():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(states, connections, {})
 
     connections['out']['out_connection_1'].send = check_payload
@@ -185,8 +185,8 @@ def test_service_utils__setup_to_send__workflow_id_put_into_to_send_payload():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(
         states,
         connections,
@@ -228,8 +228,8 @@ def test_service_utils_setup_to_send__workflow_id_incremented_on_to_send_calls()
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(
         states,
         connections,
@@ -264,8 +264,8 @@ def test_service_utils_setup_to_send__workflow_id_constant_on_to_send_calls():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(
         states,
         connections,
@@ -289,8 +289,8 @@ def test_service_utils__setup_to_send__to_send_validates_args_case():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(states, connections, {})
 
     connections['out']['out_connection_1'].send = lambda payload: None
@@ -307,8 +307,8 @@ def test_service_utils__setup_to_send__to_send_validates_returned_args_case():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(states, connections, {})
 
     connections['out']['out_connection_1'].send = lambda payload: None
@@ -326,8 +326,8 @@ def test_service_utils__setup_to_send__to_send_returns_proper_args():
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(states, connections, {})
 
     connections['out']['out_connection_1'].send = lambda payload: RETURN_PAYLOAD
@@ -346,8 +346,8 @@ def test_service_utils__run_main__connection_in_will_error():
 
     config = {}
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    conns = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    conns = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
     main_func = lambda to_send, config: True
 
     with pytest.raises(ValueError):
@@ -364,8 +364,8 @@ def test_service_utils__run_main__main_runs_successfully():
 
     imported_service = utils.import_python_file_from_cwd(MAIN_SERVICE_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_connections(addresses, imported_service, config)
-    states = service_utils.setup_states(addresses, imported_service, config)
+    connections = service_utils.setup_service_connections(addresses, imported_service, config)
+    states = service_utils.setup_service_states(addresses, imported_service, config)
 
 
     service_utils.run_main(

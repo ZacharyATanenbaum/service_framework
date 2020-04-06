@@ -353,7 +353,7 @@ def setup_config(config, imported_service):
     return config
 
 
-def setup_connections(addresses, imported_service, config):
+def setup_service_connections(addresses, imported_service, config):
     """
     addresses = {
         'connections': {
@@ -541,7 +541,7 @@ def setup_to_send(states, connections, logger_args_dict, workflow_id=None, incre
     return to_send
 
 
-def setup_states(addresses, imported_service, config):
+def setup_service_states(addresses, imported_service, config):
     """
     addresses = {
         'connections': {

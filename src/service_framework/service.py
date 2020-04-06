@@ -51,8 +51,8 @@ class Service:
         self.imported_service = utils.import_python_file_from_cwd(service_path)
         self.config = service_utils.setup_config(config, self.imported_service)
         self.addresses = service_utils.setup_addresses(addresses, self.imported_service, config)
-        self.connections = service_utils.setup_connections(addresses, self.imported_service, config)
-        self.states = service_utils.setup_states(addresses, self.imported_service, config)
+        self.connections = service_utils.setup_service_connections(addresses, self.imported_service, config)
+        self.states = service_utils.setup_service_states(addresses, self.imported_service, config)
 
         service_utils.setup_sigint_handler_func(
             self.imported_service,

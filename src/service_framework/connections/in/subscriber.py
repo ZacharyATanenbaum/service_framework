@@ -17,13 +17,10 @@ class Subscriber(BaseConnection):
     """
     def __init__(self, model, connection_addresses):
         super().__init__(model, connection_addresses)
-        self.context = zmq.Context()
-
-        self.socket = self._setup_subscriber_socket(
-            connection_addresses['subscriber'],
-            self.context,
-            model
-        )
+        self.connection_addressses = connection_addresses
+        self.context = None
+        self.model = model
+        self.socket = None
 
     def __del__(self):
         if hasattr(self, 'socket'):
@@ -142,6 +139,19 @@ class Subscriber(BaseConnection):
             'return_validator': None,
             'return_function': None,
         }]
+
+    def runtime_setup(self):
+        """
+        Method called directly after instantiation to conduct all
+        runtime required setup. I.E. Setting up a zmq.Context().
+        """
+        self.context = zmq.Context()
+
+        self.socket = self._setup_subscriber_socket(
+            self.connection_addresses['subscriber'],
+            self.context,
+            self.model
+        )
 
     def _decode_message(self, binary_message):
         """

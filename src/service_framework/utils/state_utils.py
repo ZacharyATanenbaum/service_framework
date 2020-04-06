@@ -55,7 +55,7 @@ def get_state(model, side, state_addresses):
       ...
     }
     state_addresses::{} A dictionary of the addresses used for this state model.
-    return::Base{side}State()
+    return::BaseState() Well... usually a state that extends this
     """
     LOG.info('Creating state for side "%s" and model: %s', side, str(model))
     state_type = model['state_type']
@@ -69,7 +69,10 @@ def get_state(model, side, state_addresses):
     state_import = import_python_file_from_module(path)
     state_obj = getattr(state_import, state_type_class_name)
 
-    return state_obj(model, state_addresses)
+    state = state_obj(model, state_addresses)
+    state.runtime_setup()
+
+    return state
 
 
 def setup_states(state_models, addresses):
@@ -290,6 +293,13 @@ class BaseState(ABC):
         """
         LOG.debug('"get_state" not overwritten: %s', self.model)
         return {}
+
+    @abstractmethod
+    def runtime_setup(self):
+        """
+        This method is used for the state to do any setup that must occur during
+        runtime. I.E. setting up a zmq.Context.
+        """
 
     def send(self, payload):
         """

@@ -98,6 +98,12 @@ class ExternalRequest(BaseConnection):
             'optional_creation_arguments': {},
         }
 
+    def runtime_setup(self):
+        """
+        Method called directly after instantiation to conduct all
+        runtime required setup. I.E. Setting up a zmq.Context().
+        """
+
     def get_inbound_sockets_and_triggered_functions(self):
         """
         Method needed so the service framework knows which sockets to listen

@@ -17,15 +17,12 @@ class Requester(BaseConnection):
     """
     def __init__(self, model, addresses):
         super().__init__(model, addresses)
-        self.context = zmq.Context()
-
-        self.socket = get_requester_socket(
-            addresses['requester'],
-            self.context
-        )
+        self.addresses = addresses
+        self.context = None
+        self.socket = None
 
     def __del__(self):
-        if hasattr(self, 'socket'):
+        if hasattr(self, 'socket') and self.socket:
             self.socket.close()
 
     @staticmethod
@@ -126,7 +123,26 @@ class Requester(BaseConnection):
             'return_function': def(return_args),
         }]
         """
+        self.context = zmq.Context()
+
+        self.socket = get_requester_socket(
+            self.addresses['requester'],
+            self.context
+        )
+
         return []
+
+    def runtime_setup(self):
+        """
+        Method called directly after instantiation to conduct all
+        runtime required setup. I.E. Setting up a zmq.Context().
+        """
+        self.context = zmq.Context()
+
+        self.socket = get_requester_socket(
+            self.addresses['requester'],
+            self.context
+        )
 
     def send(self, payload):
         """

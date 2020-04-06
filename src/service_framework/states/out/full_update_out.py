@@ -1,13 +1,13 @@
 """ File to house the state LocalVariablesWithFullUpdateOut """
 
-from logging import getLogger
 import zmq
 
+from service_framework.utils.logging_utils import get_logger
 from service_framework.utils.msgpack_utils import msg_pack
 from service_framework.utils.socket_utils import get_publisher_socket
 from service_framework.utils.state_utils import BaseState
 
-LOG = getLogger(__name__)
+LOG = get_logger()
 
 
 class FullUpdateOut(BaseState):
@@ -16,17 +16,14 @@ class FullUpdateOut(BaseState):
     """
     def __init__(self, model, state_addresses):
         super().__init__(model, state_addresses)
-        self.context = zmq.Context()
+        self.context = None
+        self.model = model
+        self.state_addresses = state_addresses
         self.topic = self._setup_topic(model)
-
-        self.socket = self._setup_publisher_socket(
-            state_addresses['publisher'],
-            self.context,
-            model
-        )
+        self.socket = None
 
     def __del__(self):
-        if hasattr(self, 'socket'):
+        if hasattr(self, 'socket') and self.socket:
             self.socket.close()
 
     @staticmethod
@@ -130,8 +127,21 @@ class FullUpdateOut(BaseState):
             'return_validator': def(return_args)
             'return_function': def(return_args),
         }]
-"""
+        """
         return []
+
+    def runtime_setup(self):
+        """
+        This method is used for the state to do any setup that must occur during
+        runtime. I.E. setting up a zmq.Context.
+        """
+        self.context = zmq.Context()
+
+        self.socket = self._setup_publisher_socket(
+            self.state_addresses['publisher'],
+            self.context,
+            self.model
+        )
 
     def send(self, payload):
         """

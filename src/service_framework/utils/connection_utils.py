@@ -77,7 +77,10 @@ def get_connection(model, side, connection_addresses):
     connection_import = import_python_file_from_module(module_path)
     connection_obj = getattr(connection_import, connection_type_class_name)
 
-    return connection_obj(model, connection_addresses)
+    connection = connection_obj(model, connection_addresses)
+    connection.runtime_setup()
+
+    return connection
 
 
 def setup_connections(connection_models, addresses):
@@ -297,6 +300,13 @@ class BaseConnection(ABC):
             'return_validator': def(return_args)
             'return_function': def(return_args),
         }]
+        """
+
+    @abstractmethod
+    def runtime_setup(self):
+        """
+        Method called directly after instantiation to conduct all
+        runtime required setup. I.E. Setting up a zmq.Context().
         """
 
     def send(self, payload):

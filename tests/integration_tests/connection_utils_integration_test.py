@@ -248,6 +248,12 @@ class BasicAddressArgsTestingConnection(connection_utils.BaseConnection):
         """
         return []
 
+    def runtime_setup(self):
+        """
+        This method is used for the state to do any setup that must occur during
+        runtime. I.E. setting up a zmq.Context.
+        """
+
 
 class BasicCreationArgsTestingConnection(connection_utils.BaseConnection):
     """
@@ -357,3 +363,9 @@ class BasicCreationArgsTestingConnection(connection_utils.BaseConnection):
         }]
         """
         return []
+
+    def runtime_setup(self):
+        """
+        This method is used for the state to do any setup that must occur during
+        runtime. I.E. setting up a zmq.Context.
+        """

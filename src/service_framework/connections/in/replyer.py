@@ -17,14 +17,12 @@ class Replyer(BaseConnection):
     """
     def __init__(self, model, addresses):
         super().__init__(model, addresses)
+        self.addresses = addresses
         self.model = model
-        self.context = zmq.Context()
+        self.context = None
 
         self.on_new_req = model['required_creation_arguments']['on_new_request']
-        self.socket = get_replyer_socket(
-            addresses['replyer'],
-            self.context
-        )
+        self.socket = None
 
     def __del__(self):
         if hasattr(self, 'socket'):
@@ -139,6 +137,18 @@ class Replyer(BaseConnection):
             'return_validator': self.return_validator,
             'return_function': self.return_to_requester,
         }]
+
+    def runtime_setup(self):
+        """
+        Method called directly after instantiation to conduct all
+        runtime required setup. I.E. Setting up a zmq.Context().
+        """
+        self.context = zmq.Context()
+
+        self.socket = get_replyer_socket(
+            self.addresses['replyer'],
+            self.context
+        )
 
     @staticmethod
     def decode_message(binary_message):

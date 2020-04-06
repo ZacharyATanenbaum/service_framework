@@ -480,16 +480,20 @@ Also has XSUB support.
 [Link to Subscriber File](src/service_framework/connections/in/subscriber.py)
 
 ### Out
-#### Requester
-Used to wrap a ZMQ "Requester" socket.
-Can use ``to_send('connection', 'requester_conn_name', {'args': 'here'}`` to send a payload to the connected replyer.
-[Link to Requester File](src/service_framework/connections/out/requester.py)
+### External Target
+Used to wrap an external call and make sure all of the arguments are properly formatted and returned.
+Can use ``to_send('connection', 'external_target_name', {'args': 'here'}`` to send a payload to the external service.
 
 #### Publisher
 Used to wrap a ZMQ "Publisher" socket.
 Can use ``to_send('connection', 'publisher_conn_name', {'args': 'here'}`` to send a payload to the connected subscribers.
 Also has XPUB support.
 [Link to Publisher File](src/service_framework/connections/out/publisher.py)
+
+#### Requester
+Used to wrap a ZMQ "Requester" socket.
+Can use ``to_send('connection', 'requester_conn_name', {'args': 'here'}`` to send a payload to the connected replyer.
+[Link to Requester File](src/service_framework/connections/out/requester.py)
 
 
 ## State Types

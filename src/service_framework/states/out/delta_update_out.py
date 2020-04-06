@@ -1,14 +1,14 @@
 """ File to house the state LocalVariablesWithFullUpdateOut """
 
-from logging import getLogger
 import zmq
 
+from service_framework.utils.logging_utils import get_logger
 from service_framework.utils.msgpack_utils import msg_pack, msg_unpack
 from service_framework.utils.socket_utils import get_publisher_socket, get_replyer_socket
 from service_framework.utils.state_utils import BaseState
 from service_framework.utils.update_utils import perform_delta_update
 
-LOG = getLogger(__name__)
+LOG = get_logger()
 
 
 class DeltaUpdateOut(BaseState):
@@ -17,26 +17,20 @@ class DeltaUpdateOut(BaseState):
     """
     def __init__(self, model, state_addresses):
         super().__init__(model, state_addresses)
-        self.context = zmq.Context()
+        self.context = None
+        self.model = model
+        self.state_addresses = state_addresses
         self.topic = self._setup_topic(model)
         self.current_state = {}
         self.current_num = 0
 
-        self.pub_socket = self._setup_publisher_socket(
-            state_addresses['publisher'],
-            self.context,
-            model
-        )
-
-        self.rep_socket = get_replyer_socket(
-            state_addresses['replyer'],
-            self.context
-        )
+        self.pub_socket = None
+        self.rep_socket = None
 
     def __del__(self):
-        if hasattr(self, 'pub_socket'):
+        if hasattr(self, 'pub_socket') and self.pub_socket:
             self.pub_socket.close()
-        if hasattr(self, 'rep_socket'):
+        if hasattr(self, 'rep_socket') and self.rep_socket:
             self.rep_socket.close()
 
     @staticmethod
@@ -165,6 +159,24 @@ class DeltaUpdateOut(BaseState):
             'state': self.current_state,
             'current_num': self.current_num,
         }
+
+    def runtime_setup(self):
+        """
+        This method is used for the state to do any setup that must occur during
+        runtime. I.E. setting up a zmq.Context.
+        """
+        self.context = zmq.Context()
+
+        self.pub_socket = self._setup_publisher_socket(
+            self.state_addresses['publisher'],
+            self.context,
+            self.model
+        )
+
+        self.rep_socket = get_replyer_socket(
+            self.state_addresses['replyer'],
+            self.context
+        )
 
     def send(self, payload):
         """
