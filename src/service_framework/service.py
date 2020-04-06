@@ -1,7 +1,7 @@
 """ File to house the service class """
 
 from multiprocessing import Process
-from service_framework.utils import logging_utils, service_utils, utils
+from service_framework.utils import service_utils
 
 
 class Service:
@@ -46,42 +46,28 @@ class Service:
             'file_loglevel': file_loglevel,
             'backup_count': backup_count
         }
-        logging_utils.setup_package_logger(**self.logger_args_dict)
 
-        self.imported_service = utils.import_python_file_from_cwd(service_path)
-        self.config = service_utils.setup_config(config, self.imported_service)
-        self.addresses = service_utils.setup_addresses(addresses, self.imported_service, config)
-        self.connections = service_utils.setup_service_connections(addresses, self.imported_service, config)
-        self.states = service_utils.setup_service_states(addresses, self.imported_service, config)
-
-        service_utils.setup_sigint_handler_func(
-            self.imported_service,
-            self.config,
-            self.connections,
-            self.states,
-            self.logger_args_dict
-        )
+        self.service_path = service_path
+        self.addresses = addresses
+        self.config = config
 
         self.process = None
 
     def __del__(self):
-        try:
-            if self.process:
-                self.process.terminate()
-        except AttributeError:
-            pass
+        if hasattr(self, 'process') and self.process:
+            self.process.terminate()
 
     def run_service_as_main(self):
         """
         This method is used to encapsulate the running of the service main.
         """
-        target = service_utils.run_main
+        target = service_utils.entrance_point
         args = (
-            self.imported_service.main,
-            self.connections,
-            self.states,
+            self.service_path,
             self.config,
-            self.logger_args_dict
+            self.addresses,
+            self.logger_args_dict,
+            True
         )
         self._run_target_in_background(target, args)
 
@@ -89,23 +75,23 @@ class Service:
         """
         This method is used to run the service here and block.
         """
-        service_utils.run_main(
-            self.imported_service.main,
-            self.connections,
-            self.states,
+        service_utils.entrance_point(
+            self.service_path,
             self.config,
-            self.logger_args_dict
+            self.addresses,
+            self.logger_args_dict,
+            True
         )
 
     def run_service(self):
         """
         This method is used to encapsulate the running of the service itself.
         """
-        target = service_utils.run_service
+        target = service_utils.entrance_point
         args = (
-            self.connections,
-            self.states,
+            self.service_path,
             self.config,
+            self.addresses,
             self.logger_args_dict
         )
         self._run_target_in_background(target, args)
@@ -114,10 +100,10 @@ class Service:
         """
         This method is used to run the service here and block.
         """
-        service_utils.run_service(
-            self.connections,
-            self.states,
+        service_utils.entrance_point(
+            self.service_path,
             self.config,
+            self.addresses,
             self.logger_args_dict
         )
 

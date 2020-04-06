@@ -16,6 +16,53 @@ LOG = logging_utils.get_logger()
 RUN_FLAG = True
 
 
+def entrance_point(service_path, config, addresses, logger_args_dict, is_main=False):
+    """
+    service_path = './services/other_folder/service_file.py'
+    addresses = {
+        'connections' {
+            'in': {
+                'connection_name': {
+                    'socket_name': str
+                },
+            },
+            'out': {},
+        },
+        'states': {}
+    }
+    config = {
+        'config_1': 'thingy',
+        'config_2': 12345
+    }
+    logger_args_dict = {
+        console_loglevel: str,
+        log_path: str,
+        file_loglevel: str,
+        backup_count: int,
+    }
+    """
+    logging_utils.setup_package_logger(**logger_args_dict)
+
+    imported_service = utils.import_python_file_from_cwd(service_path)
+    config = setup_config(config, imported_service)
+    addresses = setup_addresses(addresses, imported_service, config)
+    connections = setup_service_connections(addresses, imported_service, config)
+    states = setup_service_states(addresses, imported_service, config)
+
+    setup_sigint_handler_func(
+        imported_service,
+        config,
+        connections,
+        states,
+        logger_args_dict
+    )
+
+    if is_main:
+        run_main(imported_service.main, connections, states, config, logger_args_dict)
+    else:
+        run_service(connections, states, config, logger_args_dict)
+
+
 def get_all_new_payloads(polling_list, poller):
     """
     polling_list = [{
@@ -131,25 +178,27 @@ def run_main(main_func, connections, states, config, logger_args_dict):
     This is used to run a program that will be on the leading edge of a
     Python Service Framework graph or a program that will not respond to
     events.
-    service_path = './services/other_folder/service_file.py'
-    addresses = {
-        'connections' {
-            'in': {
-                'connection_name': {
-                    'socket_name': str
-                },
-            },
-            'out': {},
+    config = {'config_arg_1': 'config_value_1', ...}
+    connections = {
+        'in': {
+            'connection_name': BaseConnector(),
         },
-        'states': {}
+        'out': {
+            'connection_name': BaseConnector(),
+        },
     }
-    config = {
-        'config_1': 'thingy',
-        'config_2': 12345
+    states = {
+        'in': {
+            'state_name': BaseState(),
+        },
+        'out': {
+            'state_name': BaseState(),
+        },
     }
+    main_func::def(to_send, config, LOG)
     logger_args_dict = {
         console_loglevel: str,
-        log_path: str,
+        log_folder: None,
         file_loglevel: str,
         backup_count: int,
     }
