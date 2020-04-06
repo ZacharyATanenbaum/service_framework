@@ -62,12 +62,11 @@ def test_service__init__file_log_functions_properly():
     )
 
     replyer.run_service()
-    requester.run_service()
 
     import time
     time.sleep(1)
 
-    raise RuntimeError()
+    requester.run_service()
     """
 
 

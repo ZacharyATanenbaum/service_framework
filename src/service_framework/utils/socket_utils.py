@@ -1,12 +1,12 @@
 """ File to house socket creation functions """
 
-from logging import getLogger
 import time
 import zmq
 
+from service_framework.utils.logging_utils import get_logger
 from service_framework.utils.msgpack_utils import msg_pack
 
-LOG = getLogger(__name__)
+LOG = get_logger()
 
 
 def get_poller_socket(sockets_to_poll):
