@@ -30,6 +30,8 @@ def main(to_send, config):
 
         LOG.info('Got Response: %s', returned)
 
+    LOG.info('GOT ALL RESPONSES')
+
 
 config_model = {
     'required': {

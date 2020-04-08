@@ -1,5 +1,6 @@
 """ File that houses all of the integration tests for the Service class """
 
+import os
 from service_framework import Service
 
 BASE_DIR = './tests/integration_tests'
@@ -29,7 +30,7 @@ REQUESTER_ADDRS = {
 }
 
 REQUESTER_CONFIG = {
-    'num_req_to_send': 1
+    'num_req_to_send': 2
 }
 
 
@@ -39,102 +40,45 @@ def test_service__init__service_can_be_constructed_with_just_service_path():
     """
     service = Service(DO_NOTHING_PATH)
     service.run_service()
-    service.stop_service()
+    service.stop_service() # Make sure to stop service!
 
 
-def test_service__init__file_log_functions_properly():
+def test_service__services_can_be_run_programmatically():
     """
     Make sure the file loglevel and log folder function properly.
     """
-    """
+    requester_log_path = f'{BASE_DIR}/logs/requester.log'
+    replyer_log_path = f'{BASE_DIR}/logs/replyer.log'
+
     requester = Service(
         REQUESTER_PATH,
         addresses=REQUESTER_ADDRS,
         config=REQUESTER_CONFIG,
-        log_path=f'{BASE_DIR}/logs/requester.log',
+        log_path=requester_log_path,
         file_loglevel='DEBUG'
     )
     replyer = Service(
         REPLYER_PATH,
         addresses=REPLYER_ADDRS,
-        log_path=f'{BASE_DIR}/logs/replyer.log',
+        log_path=replyer_log_path,
         file_loglevel='DEBUG'
     )
 
     replyer.run_service()
+    requester.run_service_as_main_blocking()
+    replyer.stop_service() # Make sure to stop service!
 
-    import time
-    time.sleep(1)
+    is_success = False
+    with open(requester_log_path, 'r') as requester_log:
+        for line in requester_log.readlines():
+            if 'GOT ALL RESPONSES' in line:
+                is_success = True
 
-    requester.run_service()
-    """
+    if os.path.exists(requester_log_path):
+        os.remove(requester_log_path)
 
+    if os.path.exists(replyer_log_path):
+        os.remove(replyer_log_path)
 
-def test_service__del__make_sure_service_cleans_up_properly():
-    """
-    Make sure that if the service is killed there won't be any
-    hanging processes.
-    """
-
-
-def test_service__run_service_as_main__success_case():
-    """
-    Make sure that the service will run the main method, in
-    the background, properly.
-    """
-
-
-def test_service__run_service_as_main_blocking__sucess_case():
-    """
-    Make sure that the service will run the main method,
-    as a blocking process, properly.
-    """
-
-
-def test_service__run_service__success_case():
-    """
-    Make sure the service will run as an event processing system
-    in the background, properly.
-    """
-
-
-def test_service__run_service_blocking__success_case():
-    """
-    Make sure the service will run as en event processing system
-    properly.
-    """
-
-
-def test_service__stop_service__main_success_case():
-    """
-    Make sure that if running as main in the background the service
-    can be programmatically stopped.
-    """
-
-
-def test_service__stop_service__regular_service_success_case():
-    """
-    Make sure that if running in the background the service can
-    be programmatically stopped.
-    """
-
-
-def test_service__setup_sigint_handler__run_target_in_background_case():
-    """
-    Make sure that if a service is run in the background it will
-    still append to the sigint handler.
-    """
-
-
-def test_service__setup_sigint_handler__main_blocking_case():
-    """
-    Make sure that if a service is run as main and is blocking
-    the sigint handler will be appeneded.
-    """
-
-
-def test_service__setup_sigint_handler__service_blocking_case():
-    """
-    Make sure that if a service is run and it is blocking the sigint
-    handler will be appened.
-    """
+    if not is_success:
+        raise RuntimeError('Test failed, figure it out!')
