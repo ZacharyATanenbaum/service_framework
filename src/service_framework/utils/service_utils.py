@@ -44,7 +44,7 @@ def entrance_point(service_path, config, addresses, logger_args_dict, is_main=Fa
     logging_utils.setup_package_logger(**logger_args_dict)
 
     imported_service = utils.import_python_file_from_cwd(service_path)
-    config = setup_config(config, imported_service)
+    config = setup_config(config if config is not None else {}, imported_service)
     addresses = setup_addresses(addresses, imported_service, config)
     connections = setup_service_connections(addresses, imported_service, config)
     states = setup_service_states(addresses, imported_service, config)
@@ -153,7 +153,7 @@ def get_polling_list(connections, states):
         'return_function': def(return_args),
     }]
     """
-    LOG.info('Getting all sockets and function from states and connections.')
+    LOG.debug('Getting all sockets and function from states and connections.')
     polling_list = []
 
     for side in ('in', 'out'):
@@ -169,7 +169,7 @@ def get_polling_list(connections, states):
                 LOG.debug('Getting all sockets and functions from %s', state_name)
                 polling_list += state.get_inbound_sockets_and_triggered_functions()
 
-    LOG.info('Got %s sockets and functions!', len(polling_list))
+    LOG.debug('Got %s sockets and functions!', len(polling_list))
     return polling_list
 
 
@@ -203,9 +203,6 @@ def run_main(main_func, connections, states, config, logger_args_dict):
         backup_count: int,
     }
     """
-    if 'in' in connections and connections['in']:
-        raise ValueError('In connections do not work in main_mode. Please remove.')
-
     if 'in' in states and states['in']:
         raise ValueError('In states do not work in main_mode. Please remove.')
 
@@ -223,7 +220,7 @@ def run_main(main_func, connections, states, config, logger_args_dict):
     )
 
     def sigint_handler(signum, _):
-        LOG.info('Got SIGINT "%s"! Cleaning up...', signum)
+        LOG.debug('Got SIGINT "%s"! Cleaning up...', signum)
         global RUN_FLAG
         RUN_FLAG = False
 
@@ -356,7 +353,7 @@ def setup_addresses(addresses, imported_service, config):
         return addresses
 
     if hasattr(imported_service, 'setup_addresses'):
-        LOG.info('Found "setup_addresses" in service, Calling now...')
+        LOG.debug('Found "setup_addresses" in service, Calling now...')
         addresses = imported_service.setup_addresses(addresses, config)
 
         if not isinstance(addresses, dict):
@@ -382,10 +379,10 @@ def setup_config(config, imported_service):
         LOG.warning('No "config_model" in Service File. Skipping config setup...')
         return {}
 
-    LOG.info('Found "config_model", Setting up Config...')
+    LOG.debug('Found "config_model", Setting up Config...')
 
     if hasattr(imported_service, 'setup_config'):
-        LOG.info('Found "setup_config" Function, Calling now...')
+        LOG.debug('Found "setup_config" Function, Calling now...')
         config = imported_service.setup_config(config)
 
         if not isinstance(config, dict):
@@ -437,11 +434,11 @@ def setup_service_connections(addresses, imported_service, config):
         LOG.warning('No "connection_models" in Service File! Skipping connection setup...')
         return {}
 
-    LOG.info('Found "connection_models", Setting up Connections...')
+    LOG.debug('Found "connection_models", Setting up Connections...')
     connection_models = imported_service.connection_models
 
     if hasattr(imported_service, 'setup_connection_models'):
-        LOG.info('Found "setup_connection_models", Calling now...')
+        LOG.debug('Found "setup_connection_models", Calling now...')
         connection_models = imported_service.setup_connection_models(
             connection_models,
             config
@@ -625,11 +622,11 @@ def setup_service_states(addresses, imported_service, config):
         LOG.warning('No "state_model" in Service File. Skipping state setup...')
         return {}
 
-    LOG.info('Found "state_models", Setting up States...')
+    LOG.debug('Found "state_models", Setting up States...')
     state_models = imported_service.state_models
 
     if hasattr(imported_service, 'setup_state_models'):
-        LOG.info('Found "setup_state_models", Calling now...')
+        LOG.debug('Found "setup_state_models", Calling now...')
         state_models = imported_service.setup_state_models(state_models, config)
 
         if not isinstance(state_models, dict):
@@ -673,7 +670,7 @@ def setup_sigint_handler_func(imported_service, config, connections, states, log
         LOG.warning('No "sigint_handler" in Service File. Skipping Sigint setup...')
         return
 
-    LOG.info('Found "sigint_handler! Setting up now...')
+    LOG.debug('Found "sigint_handler! Setting up now...')
     to_send = setup_to_send(
         states,
         connections,
