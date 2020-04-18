@@ -9,7 +9,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name='service_framework',
-    version='0.0.3',
+    version='0.0.4',
     author='Zachary A. Tanenbaum',
     author_email='ZachTanenbaum+service_framework@gmail.com',
     description='A package for re-defining microservice architecture',
