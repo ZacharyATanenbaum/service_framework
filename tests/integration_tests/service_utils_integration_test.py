@@ -410,6 +410,17 @@ def test_service_utils__run_init_function__will_properly_call_init_function():
     """
     Test to make sure that the init_function will be called.
     """
+    success = False
+
+    def set_success_to_true(*_):
+        nonlocal success
+        success = True
+
+    imported_service = utils.import_python_file_from_cwd(WO_SERVICE_PATH)
+    imported_service.init_function = set_success_to_true
+    service_utils.run_init_function(imported_service, {}, {}, {}, {})
+    assert success
+
 
 
 def test_service_utils__run_init_function__will_not_fail_if_init_function_not_found():
