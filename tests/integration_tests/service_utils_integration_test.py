@@ -1,28 +1,17 @@
 """ File to house integration tests for the service utils """
 
-import logging
+import os
 import signal
 import subprocess
 import time
 import uuid
 import pytest
 import zmq
+from service_framework import get_logger, Service
 from service_framework.utils import msgpack_utils, service_utils, socket_utils, utils
 import testing_utils
 
-LOG = logging.getLogger(__name__)
-
-ADDRESSES_PATH = './tests/integration_tests/data/service_utils_integration_test/addresses.json'
-SERVICE_PATH = './tests/integration_tests/data/service_utils_integration_test/service.py'
-WO_SERVICE_PATH = './tests/integration_tests/data/service_utils_integration_test/wo_service.py'
-MAIN_SERVICE_PATH = './tests/integration_tests/data/service_utils_integration_test/main_service.py'
-SIGINT_PATH = './tests/integration_tests/data/service_utils_integration_test/run_sigint_service.sh'
-PROPER_ARGS = {'this_is_a_test_arg': 'Test Value!'}
-RETURN_PAYLOAD = {
-    'return_args': {
-        'this_is_a_return_arg': 'ReturnArgHi!',
-    },
-}
+LOG = get_logger()
 
 
 def test_service_utils__setup_service_connections__no_connection_models_case():
@@ -354,29 +343,6 @@ def test_service_utils__run_main__connection_in_will_error():
         service_utils.run_main(config, conns, states, main_func, {})
 
 
-def test_service_utils__run_main__main_runs_successfully():
-    """
-    Test that the service_framework main mode will run a "hello world"
-    main method.
-    """
-    cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    config = {}
-
-    imported_service = utils.import_python_file_from_cwd(MAIN_SERVICE_PATH)
-    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-
-
-    service_utils.run_main(
-        imported_service.main,
-        connections,
-        states,
-        config,
-        {}
-    )
-
-
 def test_service_utils__setup_sigint_handler_func__sucessfully_called_custom_sigint_handler():
     """
     Test if the service_framework will properly call a custom sigint handler function on
@@ -406,26 +372,97 @@ def test_service_utils__setup_sigint_handler_func__sucessfully_called_custom_sig
     assert payload2['args']['message'] == 'handler2'
 
 
-def test_service_utils__run_init_function__will_properly_call_init_function():
+
+def test_service_utils__run_init_function__init_function_runs_properly():
     """
-    Test to make sure that the init_function will be called.
+    Make sure the init function will run properly
     """
-    success = False
+    requester = Service(
+        REQUESTER_PATH,
+        addresses=REQUESTER_ADDRS,
+        config=REQUESTER_CONFIG,
+        log_path=REQUESTER_LOG_PATH,
+        file_loglevel='DEBUG'
+    )
+    replyer = Service(
+        REPLYER_PATH,
+        addresses=REPLYER_ADDRS,
+        log_path=REPLYER_LOG_PATH,
+        file_loglevel='DEBUG'
+    )
 
-    def set_success_to_true(*_):
-        nonlocal success
-        success = True
+    replyer.run_service()
+    requester.run_service_as_main()
 
-    imported_service = utils.import_python_file_from_cwd(WO_SERVICE_PATH)
-    imported_service.init_function = set_success_to_true
-    service_utils.run_init_function(imported_service, {}, {}, {}, {})
-    assert success
+    start = time.time()
+    is_success = False
+
+    while not is_success:
+        if time.time() - start > 1:
+            break
+
+        if not os.path.exists(REQUESTER_LOG_PATH):
+            continue
+
+        with open(REQUESTER_LOG_PATH, 'r') as requester_log:
+            for line in requester_log.readlines():
+                if 'GOT ALL RESPONSES' in line:
+                    is_success = True
+
+    replyer.stop_service() # Make sure to stop service!
+
+    if os.path.exists(REQUESTER_LOG_PATH):
+        os.remove(REQUESTER_LOG_PATH)
+
+    if os.path.exists(REPLYER_LOG_PATH):
+        os.remove(REPLYER_LOG_PATH)
+
+    if not is_success:
+        raise RuntimeError('Test failed, figure it out!')
 
 
+BASE_DIR = './tests/integration_tests'
+BASE_DATA_DIR = f'{BASE_DIR}/data/service_utils_integration_test'
+BASE_LOG_DIR = f'{BASE_DIR}/logs/service_utils_integration_test'
 
-def test_service_utils__run_init_function__will_not_fail_if_init_function_not_found():
-    """
-    Make sure that if the init_function is not available nothing will blow up.
-    """
-    imported_service = utils.import_python_file_from_cwd(WO_SERVICE_PATH)
-    service_utils.run_init_function(imported_service, {}, {}, {}, {})
+ADDRESSES_PATH = f'{BASE_DATA_DIR}/addresses.json'
+SERVICE_PATH = f'{BASE_DATA_DIR}/service.py'
+WO_SERVICE_PATH = f'{BASE_DATA_DIR}/wo_service.py'
+MAIN_SERVICE_PATH = f'{BASE_DATA_DIR}/main_service.py'
+SIGINT_PATH = f'{BASE_DATA_DIR}/run_sigint_service.sh'
+
+PROPER_ARGS = {'this_is_a_test_arg': 'Test Value!'}
+RETURN_PAYLOAD = {
+    'return_args': {
+        'this_is_a_return_arg': 'ReturnArgHi!',
+    },
+}
+
+REPLYER_PATH = f'{BASE_DATA_DIR}/run_init_function/replyer_service.py'
+REPLYER_LOG_PATH = f'{BASE_LOG_DIR}/run_init_function/replyer_service.log'
+REQUESTER_PATH = f'{BASE_DATA_DIR}/run_init_function/requester_service.py'
+REQUESTER_LOG_PATH = f'{BASE_LOG_DIR}/run_init_function/requester_service.log'
+
+REPLYER_ADDRS = {
+    "connections": {
+        "in": {
+            "reply": {
+                "replyer": "127.0.0.1:12222"
+            }
+        }
+    }
+}
+
+REQUESTER_ADDRS = {
+    "connections": {
+        "out": {
+            "request": {
+                "requester": "127.0.0.1:12222"
+            }
+        }
+    }
+}
+
+REQUESTER_CONFIG = {
+    'num_req_to_send': 2
+}
