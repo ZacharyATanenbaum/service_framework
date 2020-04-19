@@ -321,6 +321,12 @@ return {
 - Sigint Handler
   - ex. `sigint_handler(sigint, frame, to_send, states, config)`
   - This method is called whenever a sigint is provided.
+
+- Init Function
+  - ex. `init_function(to_send, states, config)`
+  - This method is called before the main method or service framework.
+
+
 #### Optional Models
 Models are only needed if used in the service.
   - `config_model`
@@ -536,17 +542,16 @@ Whenever a new message is recived it fully updates the local state.
 ```
 
 
-
 ## Service Framework Running Workflow
 - Load Service File to get models
-- Addresses:
-  - Load addresses config
-  - Run setup\_addresses if available
 - Config:
   - Get config file location
   - Get additional environmental variables
   - Run setup\_config function
   - Check config parameters
+- Addresses:
+  - Load addresses config
+  - Run setup\_addresses if available
 - Connections:
   - Load Connections Config
   - Run setup\_connections function
@@ -555,6 +560,12 @@ Whenever a new message is recived it fully updates the local state.
   - Load States Config
   - Run setup\_states function
   - Get states (in and out)
-- [Honestly, check the ``run_service`` method](src/service_framework/utils/service_utils)
+- Sigint Handler:
+  - Sets up Sigint handling if needed 
+  - Runs sigint\_handler
+- Init Function:
+  - Run init\_function before running main or service loop
+- Runs either main or service loop
+- [Honestly, check the ``entrance_point`` method](src/service_framework/utils/service_utils)
 
 

@@ -57,6 +57,8 @@ def entrance_point(service_path, config, addresses, logger_args_dict, is_main=Fa
         logger_args_dict
     )
 
+    run_init_function(imported_service, connections, states, config, logger_args_dict)
+
     if is_main:
         run_main(imported_service.main, connections, states, config, logger_args_dict)
     else:
@@ -171,6 +173,51 @@ def get_polling_list(connections, states):
 
     LOG.debug('Got %s sockets and functions!', len(polling_list))
     return polling_list
+
+
+def run_init_function(imported_service, connections, states, config, logger_args_dict):
+    """
+    imported_service::module The imported service python file
+    connections = {
+        'in': {
+            'connection_name': BaseInConnector(),
+        }
+        'out': {
+            'connection_name': BaseOutConnector(),
+        },
+    }
+    states = {
+        'in': {
+            'state_name': BaseState(),
+        },
+        'out': {
+            'state_name': BaseState(),
+        },
+    }
+    config = {
+        'config_1': 'thingy',
+        'config_2': 12345
+    }
+    logger_args_dict = {
+        console_loglevel: str,
+        log_folder: None,
+        file_loglevel: str,
+        backup_count: int,
+    }
+    """
+    to_send = setup_to_send(
+        states,
+        connections,
+        logger_args_dict,
+        workflow_id=None,
+        increment_id=False
+    )
+
+    if hasattr(imported_service, 'init_function'):
+        LOG.debug('Found "init_function" in service, Calling now...')
+        imported_service.init_function(to_send, states, config)
+    else:
+        LOG.warning('Could not find "init_function" in service. Skipping...')
 
 
 def run_main(main_func, connections, states, config, logger_args_dict):

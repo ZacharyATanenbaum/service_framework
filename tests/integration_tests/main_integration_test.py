@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import time
 from service_framework import Service
 from testing_utils import get_exec_command_for_python_program
 
@@ -50,14 +51,24 @@ def test_main__main__inbound_connections_function_properly():
     )
 
     inbound.run_service_as_main()
-    outbound.run_service_as_main_blocking()
-    inbound.stop_service() # Make sure to stop service!
+    outbound.run_service_as_main()
 
+    start = time.time()
     is_success = False
-    with open(INBOUND_LOG_PATH, 'r') as requester_log:
-        for line in requester_log.readlines():
-            if 'SUCCESS!' in line:
-                is_success = True
+
+    while not is_success:
+        if time.time() - start > 1:
+            break
+
+        if not os.path.exists(OUTBOUND_LOG_PATH):
+            continue
+
+        with open(INBOUND_LOG_PATH, 'r') as requester_log:
+            for line in requester_log.readlines():
+                if 'SUCCESS!' in line:
+                    is_success = True
+
+    inbound.stop_service() # Make sure to stop service!
 
     if os.path.exists(INBOUND_LOG_PATH):
         os.remove(INBOUND_LOG_PATH)
@@ -84,7 +95,7 @@ INBOUND_ADDRS = {
     "connections": {
         "in": {
             "reply": {
-                "replyer": "127.0.0.1:18999"
+                "replyer": "127.0.0.1:18991"
             }
         }
     }
@@ -94,7 +105,7 @@ OUTBOUND_ADDRS = {
     "connections": {
         "out": {
             "request": {
-                "requester": "127.0.0.1:18999"
+                "requester": "127.0.0.1:18991"
             }
         }
     }

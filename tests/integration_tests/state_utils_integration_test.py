@@ -8,59 +8,6 @@ from service_framework.states.out.full_update_out import FullUpdateOut
 LOG = logging.getLogger(__name__)
 
 
-ADDRESSES = {
-    'states': {
-        'out': {
-            'full_update_1': {
-                'publisher': '127.0.0.1:8877',
-            },
-            'full_update_2': {
-                'publisher': '127.0.0.1:8888',
-            },
-        }
-    }
-}
-
-
-STATE_MODELS = {
-    'out': {
-        'full_update_1': {
-            'state_type': 'full_update_out',
-            'optional_creation_arguments': {
-                'wait_after_creation_s': 0.0
-            }
-        },
-        'full_update_2': {
-            'state_type': 'full_update_out',
-            'optional_creation_arguments': {
-                'wait_after_creation_s': 0.0
-            },
-        },
-    },
-}
-
-
-BASIC_ADDRESSES = {
-    'required_addr_1': 'req_string_address_1',
-    'required_addr_2': 'req_string_address_2',
-    'optional_addr_1': 'opt_string_address_1',
-    'optional_addr_2': 'opt_string_address_2',
-}
-
-
-BASIC_MODEL = {
-    'state_type': 'basic',
-    'required_creation_arguments': {
-        'required_creation_argument_1': 'foo',
-        'required_creation_argument_2': 7888,
-    },
-    'optional_creation_arguments': {
-        'optional_creation_argument_1': 'bar',
-        'optional_creation_argument_2': 1337,
-    },
-}
-
-
 def test_state_utils__base_state__valid_validate_creation_args_and_addresses_case():
     """
     Make sure the addresses provided to a state are validated in the base
@@ -252,3 +199,56 @@ class BaseTestingState(state_utils.BaseState):
         This method is used for the state to do any setup that must occur during
         runtime. I.E. setting up a zmq.Context.
         """
+
+
+ADDRESSES = {
+    'states': {
+        'out': {
+            'full_update_1': {
+                'publisher': '127.0.0.1:8877',
+            },
+            'full_update_2': {
+                'publisher': '127.0.0.1:8888',
+            },
+        }
+    }
+}
+
+
+STATE_MODELS = {
+    'out': {
+        'full_update_1': {
+            'state_type': 'full_update_out',
+            'optional_creation_arguments': {
+                'wait_after_creation_s': 0.0
+            }
+        },
+        'full_update_2': {
+            'state_type': 'full_update_out',
+            'optional_creation_arguments': {
+                'wait_after_creation_s': 0.0
+            },
+        },
+    },
+}
+
+
+BASIC_ADDRESSES = {
+    'required_addr_1': 'req_string_address_1',
+    'required_addr_2': 'req_string_address_2',
+    'optional_addr_1': 'opt_string_address_1',
+    'optional_addr_2': 'opt_string_address_2',
+}
+
+
+BASIC_MODEL = {
+    'state_type': 'basic',
+    'required_creation_arguments': {
+        'required_creation_argument_1': 'foo',
+        'required_creation_argument_2': 7888,
+    },
+    'optional_creation_arguments': {
+        'optional_creation_argument_1': 'bar',
+        'optional_creation_argument_2': 1337,
+    },
+}

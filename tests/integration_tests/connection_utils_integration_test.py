@@ -8,53 +8,6 @@ from service_framework.connections.out.requester import Requester
 LOG = logging.getLogger(__name__)
 
 
-ADDRESSES = {
-    'connections': {
-        'out': {
-            'requester_connection': {
-                'requester': '127.0.0.1:8877',
-            },
-            'requester_connection_2': {
-                'requester': '127.0.0.1:8877',
-            },
-        }
-    }
-}
-
-
-CONNECTION_MODELS = {
-    'out': {
-        'requester_connection': {
-            'connection_type': 'requester',
-        },
-        'requester_connection_2': {
-            'connection_type': 'requester',
-        },
-    },
-}
-
-
-BASIC_ADDRESSES = {
-    'required_connection_1': 'req_string_address_1',
-    'required_connection_2': 'req_string_address_2',
-    'optional_connection_1': 'opt_string_address_1',
-    'optional_connection_2': 'opt_string_address_2',
-}
-
-
-BASIC_MODEL = {
-    'connection_type': 'basic',
-    'required_creation_arguments': {
-        'required_creation_argument_1': 'foo',
-        'required_creation_argument_2': 7888,
-    },
-    'optional_creation_arguments': {
-        'optional_creation_argument_1': 'bar',
-        'optional_creation_argument_2': 1337,
-    },
-}
-
-
 def test_connection_utils__base_connection__valid_validate_addresses_case():
     """
     Make sure the addresses provided to a connection are validated in the base
@@ -369,3 +322,50 @@ class BasicCreationArgsTestingConnection(connection_utils.BaseConnection):
         This method is used for the state to do any setup that must occur during
         runtime. I.E. setting up a zmq.Context.
         """
+
+
+ADDRESSES = {
+    'connections': {
+        'out': {
+            'requester_connection': {
+                'requester': '127.0.0.1:8877',
+            },
+            'requester_connection_2': {
+                'requester': '127.0.0.1:8877',
+            },
+        }
+    }
+}
+
+
+CONNECTION_MODELS = {
+    'out': {
+        'requester_connection': {
+            'connection_type': 'requester',
+        },
+        'requester_connection_2': {
+            'connection_type': 'requester',
+        },
+    },
+}
+
+
+BASIC_ADDRESSES = {
+    'required_connection_1': 'req_string_address_1',
+    'required_connection_2': 'req_string_address_2',
+    'optional_connection_1': 'opt_string_address_1',
+    'optional_connection_2': 'opt_string_address_2',
+}
+
+
+BASIC_MODEL = {
+    'connection_type': 'basic',
+    'required_creation_arguments': {
+        'required_creation_argument_1': 'foo',
+        'required_creation_argument_2': 7888,
+    },
+    'optional_creation_arguments': {
+        'optional_creation_argument_1': 'bar',
+        'optional_creation_argument_2': 1337,
+    },
+}
