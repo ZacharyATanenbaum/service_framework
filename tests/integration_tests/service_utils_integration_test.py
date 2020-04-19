@@ -404,3 +404,17 @@ def test_service_utils__setup_sigint_handler_func__sucessfully_called_custom_sig
 
     assert payload1['args']['message'] == 'handler1'
     assert payload2['args']['message'] == 'handler2'
+
+
+def test_service_utils__run_init_function__will_properly_call_init_function():
+    """
+    Test to make sure that the init_function will be called.
+    """
+
+
+def test_service_utils__run_init_function__will_not_fail_if_init_function_not_found():
+    """
+    Make sure that if the init_function is not available nothing will blow up.
+    """
+    imported_service = utils.import_python_file_from_cwd(WO_SERVICE_PATH)
+    service_utils.run_init_function(imported_service, {}, {}, {}, {})
