@@ -2,7 +2,7 @@
 
 from inspect import signature
 import logging
-from types import FunctionType
+from types import FunctionType, MethodType
 
 LOG = logging.getLogger(__name__)
 
@@ -224,6 +224,11 @@ def validate_required_arg(new_arg, required_type):
             )
             LOG.error(err)
             raise ValueError(err)
+
+    elif isinstance(required_type, FunctionType) and isinstance(new_arg, MethodType):
+        # Make sure, if given a function and method, that it's considered an
+        # acceptable match.
+        pass
 
     elif not isinstance(new_arg, required_type):
         err = 'New Argument "{}" of type "{}" is not of required type "{}"'.format(

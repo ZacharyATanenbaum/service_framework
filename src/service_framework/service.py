@@ -2,6 +2,7 @@
 
 from multiprocessing import Process
 from service_framework.utils import service_utils
+from service_framework.utils.utils import import_python_file_from_cwd
 
 
 class Service:
@@ -9,9 +10,9 @@ class Service:
     This class encapsulates the provided service (via service path) and then
     the running of said service in a new subprocess
     """
-
     def __init__(self,
-                 service_path,
+                 service_path=None,
+                 service_obj=None,
                  addresses=None,
                  config=None,
                  console_loglevel='INFO',
@@ -20,6 +21,7 @@ class Service:
                  backup_count=24):
         """
         service_path = './services/other_folder/service_file.py'
+        service_obj::obj An object/namespace that has the needed functions
         config = {
             'config_1': 'thingy',
             'config_2': 12345
@@ -47,7 +49,7 @@ class Service:
             'backup_count': backup_count
         }
 
-        self.service_path = service_path
+        self.service_obj = service_obj if service_obj else import_python_file_from_cwd(service_path)
         self.addresses = addresses
         self.config = config
 
@@ -63,7 +65,7 @@ class Service:
         """
         target = service_utils.entrance_point
         args = (
-            self.service_path,
+            self.service_obj,
             self.config,
             self.addresses,
             self.logger_args_dict,
@@ -76,7 +78,7 @@ class Service:
         This method is used to run the service here and block.
         """
         service_utils.entrance_point(
-            self.service_path,
+            self.service_obj,
             self.config,
             self.addresses,
             self.logger_args_dict,
@@ -89,7 +91,7 @@ class Service:
         """
         target = service_utils.entrance_point
         args = (
-            self.service_path,
+            self.service_obj,
             self.config,
             self.addresses,
             self.logger_args_dict
@@ -101,7 +103,7 @@ class Service:
         This method is used to run the service here and block.
         """
         service_utils.entrance_point(
-            self.service_path,
+            self.service_obj,
             self.config,
             self.addresses,
             self.logger_args_dict
