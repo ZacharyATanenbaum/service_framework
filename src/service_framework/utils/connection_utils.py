@@ -124,7 +124,7 @@ def setup_connections(connection_models, addresses):
         },
     }
     """
-    LOG.debug('Setting up Connections with Addresses "%s"...', addresses)
+    LOG.debug('Setting up Connections...')
     conns = {}
 
     for side in ('in', 'out'):

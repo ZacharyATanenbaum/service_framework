@@ -16,9 +16,9 @@ LOG = logging_utils.get_logger()
 RUN_FLAG = True
 
 
-def entrance_point(service_obj, config, addresses, logger_args_dict, is_main=False):
+def entrance_point(service_path, config, addresses, logger_args_dict, is_main=False):
     """
-    service_obj::obj An object/namespace that has the needed functions
+    service_path = './services/other_folder/service_file.py'
     addresses = {
         'connections' {
             'in': {
@@ -43,23 +43,24 @@ def entrance_point(service_obj, config, addresses, logger_args_dict, is_main=Fal
     """
     logging_utils.setup_package_logger(**logger_args_dict)
 
-    config = setup_config(config if config is not None else {}, service_obj)
-    addresses = setup_addresses(addresses, service_obj, config)
-    connections = setup_service_connections(addresses, service_obj, config)
-    states = setup_service_states(addresses, service_obj, config)
+    imported_service = utils.import_python_file_from_cwd(service_path)
+    config = setup_config(config if config is not None else {}, imported_service)
+    addresses = setup_addresses(addresses, imported_service, config)
+    connections = setup_service_connections(addresses, imported_service, config)
+    states = setup_service_states(addresses, imported_service, config)
 
     setup_sigint_handler_func(
-        service_obj,
+        imported_service,
         config,
         connections,
         states,
         logger_args_dict
     )
 
-    run_init_function(service_obj, connections, states, config, logger_args_dict)
+    run_init_function(imported_service, connections, states, config, logger_args_dict)
 
     if is_main:
-        run_main(service_obj.main, connections, states, config, logger_args_dict)
+        run_main(imported_service.main, connections, states, config, logger_args_dict)
     else:
         run_service(connections, states, config, logger_args_dict)
 
@@ -174,9 +175,9 @@ def get_polling_list(connections, states):
     return polling_list
 
 
-def run_init_function(service_obj, connections, states, config, logger_args_dict):
+def run_init_function(imported_service, connections, states, config, logger_args_dict):
     """
-    service_obj::obj An object/namespace that has the needed functions
+    imported_service::module The imported service python file
     connections = {
         'in': {
             'connection_name': BaseInConnector(),
@@ -212,9 +213,9 @@ def run_init_function(service_obj, connections, states, config, logger_args_dict
         increment_id=False
     )
 
-    if hasattr(service_obj, 'init_function'):
+    if hasattr(imported_service, 'init_function'):
         LOG.debug('Found "init_function" in service, Calling now...')
-        service_obj.init_function(to_send, states, config)
+        imported_service.init_function(to_send, states, config)
     else:
         LOG.warning('Could not find "init_function" in service. Skipping...')
 
@@ -371,10 +372,10 @@ def run_service(connections, states, config, logger_args_dict):
             logging_utils.set_new_workflow_id_on_logger(None, logger_args_dict)
 
 
-def setup_addresses(addresses, service_obj, config):
+def setup_addresses(addresses, imported_service, config):
     """
     addrs_path::str Relative import path to the addresses file
-    service_obj::obj An object/namespace that has the needed functions
+    imported_service::module The imported service python file
     return = {
         'connections': {
             'in': {
@@ -398,9 +399,9 @@ def setup_addresses(addresses, service_obj, config):
     if not addresses:
         return addresses
 
-    if hasattr(service_obj, 'setup_addresses'):
+    if hasattr(imported_service, 'setup_addresses'):
         LOG.debug('Found "setup_addresses" in service, Calling now...')
-        addresses = service_obj.setup_addresses(addresses, config)
+        addresses = imported_service.setup_addresses(addresses, config)
 
         if not isinstance(addresses, dict):
             err = 'setup_addresses function must return a dict of addresses!'
@@ -410,26 +411,26 @@ def setup_addresses(addresses, service_obj, config):
     return addresses
 
 
-def setup_config(config, service_obj):
+def setup_config(config, imported_service):
     """
     config::{} Config that has already been parsed
-    service_obj::obj An object/namespace that has the needed functions
+    imported_service::module The imported service python file
     return::{} ex. {**file_arguments, 'random_argument': 'HELLO'}
     """
-    if not hasattr(service_obj, 'config_model') and config:
+    if not hasattr(imported_service, 'config_model') and config:
         err = 'Must provide a "config_model" func in the service if using a config.'
         LOG.error(err)
         raise ValueError(err)
 
-    if not hasattr(service_obj, 'config_model'):
+    if not hasattr(imported_service, 'config_model'):
         LOG.warning('No "config_model" in Service File. Skipping config setup...')
         return {}
 
     LOG.debug('Found "config_model", Setting up Config...')
 
-    if hasattr(service_obj, 'setup_config'):
+    if hasattr(imported_service, 'setup_config'):
         LOG.debug('Found "setup_config" Function, Calling now...')
-        config = service_obj.setup_config(config)
+        config = imported_service.setup_config(config)
 
         if not isinstance(config, dict):
             err = 'setup_config function must return a dict of configs!'
@@ -438,14 +439,14 @@ def setup_config(config, service_obj):
 
     validation_utils.validate_args(
         config,
-        service_obj.config_model.get('required', {}),
-        service_obj.config_model.get('optional', {})
+        imported_service.config_model.get('required', {}),
+        imported_service.config_model.get('optional', {})
     )
 
     return config
 
 
-def setup_service_connections(addresses, service_obj, config):
+def setup_service_connections(addresses, imported_service, config):
     """
     addresses = {
         'connections': {
@@ -463,7 +464,7 @@ def setup_service_connections(addresses, service_obj, config):
         },
         'states': {},
     }
-    service_obj::obj An object/namespace that has the needed functions
+    imported_service::module The imported service python file
     config = {
         'config_key_1': 'config_val_1'
     }
@@ -476,16 +477,16 @@ def setup_service_connections(addresses, service_obj, config):
         },
     }
     """
-    if not hasattr(service_obj, 'connection_models'):
+    if not hasattr(imported_service, 'connection_models'):
         LOG.warning('No "connection_models" in Service File! Skipping connection setup...')
         return {}
 
     LOG.debug('Found "connection_models", Setting up Connections...')
-    connection_models = service_obj.connection_models
+    connection_models = imported_service.connection_models
 
-    if hasattr(service_obj, 'setup_connection_models'):
+    if hasattr(imported_service, 'setup_connection_models'):
         LOG.debug('Found "setup_connection_models", Calling now...')
-        connection_models = service_obj.setup_connection_models(
+        connection_models = imported_service.setup_connection_models(
             connection_models,
             config
         )
@@ -633,7 +634,7 @@ def setup_to_send(states, connections, logger_args_dict, workflow_id=None, incre
     return to_send
 
 
-def setup_service_states(addresses, service_obj, config):
+def setup_service_states(addresses, imported_service, config):
     """
     addresses = {
         'connections': {
@@ -651,7 +652,7 @@ def setup_service_states(addresses, service_obj, config):
         },
         'states': {},
     }
-    service_obj::obj An object/namespace that has the needed functions
+    imported_service::module The imported service python file
     return = {
         'in': {
             'state_name': BaseInState(),
@@ -664,16 +665,16 @@ def setup_service_states(addresses, service_obj, config):
         'config_key_1': 'config_val_1',
     }
     """
-    if not hasattr(service_obj, 'state_models'):
+    if not hasattr(imported_service, 'state_models'):
         LOG.warning('No "state_model" in Service File. Skipping state setup...')
         return {}
 
     LOG.debug('Found "state_models", Setting up States...')
-    state_models = service_obj.state_models
+    state_models = imported_service.state_models
 
-    if hasattr(service_obj, 'setup_state_models'):
+    if hasattr(imported_service, 'setup_state_models'):
         LOG.debug('Found "setup_state_models", Calling now...')
-        state_models = service_obj.setup_state_models(state_models, config)
+        state_models = imported_service.setup_state_models(state_models, config)
 
         if not isinstance(state_models, dict):
             err = 'setup_state_models function must return a dict of state models!'
@@ -683,11 +684,11 @@ def setup_service_states(addresses, service_obj, config):
     return state_utils.setup_states(state_models, addresses)
 
 
-def setup_sigint_handler_func(service_obj, config, connections, states, logger_args_dict):
+def setup_sigint_handler_func(imported_service, config, connections, states, logger_args_dict):
     """
     This function is used to setup a custom sigint handler provided from
     the imported service.
-    service_obj::obj An object/namespace that has the needed functions
+    imported_service::module The imported service python file
     config = {'config_arg_1': 'config_value_1', ...}
     connections = {
         'in': {
@@ -712,7 +713,7 @@ def setup_sigint_handler_func(service_obj, config, connections, states, logger_a
         backup_count: int,
     }
     """
-    if not hasattr(service_obj, 'sigint_handler'):
+    if not hasattr(imported_service, 'sigint_handler'):
         LOG.warning('No "sigint_handler" in Service File. Skipping Sigint setup...')
         return
 
@@ -724,7 +725,7 @@ def setup_sigint_handler_func(service_obj, config, connections, states, logger_a
     )
 
     def custom_sigint_handler(sigint, frame):
-        service_obj.sigint_handler(
+        imported_service.sigint_handler(
             sigint,
             frame,
             to_send,

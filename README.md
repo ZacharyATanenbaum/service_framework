@@ -50,32 +50,12 @@ Below are the commands on how to use this class:
 
 from service_framework import Service
 
+service_relative_path = './path_to_service_file/service_specification.py'
 config = {'some_config_key': 'some_config_value'}
 addresses = {'look below this can get complicated'}
 
-# Instantiate the Service from Relative Path
-service_schematic_relative_path = './path_to_service_file/service_specification.py'
-my_service = Service(
-    service_path=service_schematic_relative_path,
-    config=config,
-    addresses=addresses
-)
+my_service = Service(service_relative_path, config=config, addresses=addresses)
 
-# Instantiate the Service from a Class File
-service_schematic_class = SomeService()
-my_other_service = Service(
-    service_obj=service_schematic_class,
-    config=config,
-    addresses=addresses
-)
-
-# Instantiate the Service from a Non-instantiated Class File
-another_service_class = SomeServiceAsWell
-another_service = Service(
-    service_obj=another_service_class,
-    config=config,
-    addresses=addresses
-)
 
 # To run the service as a "main service" or in "main mode" in the background.
 my_service.run_service_as_main()
