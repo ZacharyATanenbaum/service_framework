@@ -3,6 +3,7 @@
 from decimal import Decimal
 from uuid import UUID
 from msgpack import packb, unpackb
+import numpy
 
 
 def custom_encode(obj):
@@ -19,6 +20,9 @@ def custom_encode(obj):
 
     if isinstance(obj, UUID):
         return {'__uuid__': True, 'as_str': str(obj)}
+
+    if isinstance(obj, numpy.ndarray):
+        return {'__numpy.ndarray__': True, 'as_str': obj.tostring()}
 
     return obj
 
@@ -37,6 +41,9 @@ def custom_decode(obj):
 
     if '__uuid__' in obj:
         return UUID(obj['as_str'])
+
+    if '__numpy.ndarray__' in obj:
+        return numpy.frombuffer(obj['as_str'])
 
     return obj
 

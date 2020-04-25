@@ -3,6 +3,7 @@
 from decimal import Decimal
 from uuid import uuid4
 
+import numpy
 from service_framework.utils import msgpack_utils
 
 
@@ -31,6 +32,15 @@ def test_msgpack_utils__custom_encode__can_encode_uuids():
     to_test = uuid4()
     encoded = msgpack_utils.custom_encode(to_test)
     assert encoded == {'__uuid__': True, 'as_str': str(to_test)}
+
+
+def test_msgpack_utils__custom_encode__can_encode_numpy_ndarray():
+    """
+    Make sure the custom encoder can encode numpy arrays
+    """
+    to_test = numpy.ndarray([1, 2, 3, 4, 5])
+    encoded = msgpack_utils.custom_encode(to_test)
+    assert encoded == {'__numpy.ndarray__': True, 'as_str': to_test.tostring()}
 
 
 def test_msgpack_utils__custom_encode__do_nothing_for_regular_obj():
@@ -72,6 +82,16 @@ def test_msgpack_utils__custom_decode__can_decode_uuids():
     assert to_test == decoded
 
 
+def test_msgpack_utils__custom_decode__can_decode_numpy_ndarray():
+    """
+    Make sure the customer decoder can decode numpy ndarray
+    """
+    to_test = numpy.ndarray([1])
+    encoded = {'__numpy.ndarray__': True, 'as_str': to_test.tostring()}
+    decoded = msgpack_utils.custom_decode(encoded)
+    assert to_test == decoded
+
+
 def test_msgpack_utils__custom_decode__do_nothing_for_regular_obj():
     """
     Make sure the custom decoder will do nothing to a non-specified object.
@@ -102,6 +122,20 @@ def test_msgpack_utils__msg_pack__will_pack_and_unpack_uuid_object():
     to_test = {
         'regular_key': 'This is a regular obj...',
         'uuid_key': uuid4(),
+    }
+
+    encoded = msgpack_utils.msg_pack(to_test)
+    decoded = msgpack_utils.msg_unpack(encoded)
+    assert to_test == decoded
+
+
+def test_msgpack_utils__msg_pack__will_pack_and_unpack_numpy_ndarray():
+    """
+    Make sure the function can pack and unpack a numpy ndarray
+    """
+    to_test = {
+        'regular_key': 'Hii',
+        'numpy.ndarray': numpy.ndarray([1])
     }
 
     encoded = msgpack_utils.msg_pack(to_test)
