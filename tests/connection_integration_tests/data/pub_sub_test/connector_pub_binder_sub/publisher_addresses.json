@@ -1,0 +1,12 @@
+{
+  "connections": {
+    "out": {
+      "publish_int": {
+        "publisher": "127.0.0.1:19998"
+      },
+      "get_sent_message_ints": {
+        "requester": "127.0.0.1:19999"
+      }
+    }
+  }
+}

@@ -46,7 +46,7 @@ class Subscriber(BaseConnection):
         """
         return {
             'required_addresses': {'subscriber': str},
-            'optional_addresses': {'is_binder': bool},
+            'optional_addresses': {},
         }
 
     @staticmethod
@@ -110,7 +110,8 @@ class Subscriber(BaseConnection):
                 'on_new_message': lambda args, to_send, states, config: True,
             },
             'optional_creation_arguments': {
-                'topic': str,
+                'is_binder': bool,
+                'topic': str
             },
         }
 
