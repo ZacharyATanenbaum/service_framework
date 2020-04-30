@@ -46,7 +46,7 @@ class Subscriber(BaseConnection):
         """
         return {
             'required_addresses': {'subscriber': str},
-            'optional_addresses': {},
+            'optional_addresses': {'is_binder': bool},
         }
 
     @staticmethod
@@ -187,5 +187,6 @@ class Subscriber(BaseConnection):
         return get_subscriber_socket(
             address,
             context,
-            topic
+            topic,
+            is_binder=opt_args.get('is_binder', False)
         )

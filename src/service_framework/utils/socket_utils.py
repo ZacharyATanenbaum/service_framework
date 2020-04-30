@@ -67,7 +67,7 @@ def get_replyer_socket(address, context):
     return socket
 
 
-def get_subscriber_socket(address, context, tag=''):
+def get_subscriber_socket(address, context, tag='', is_binder=False):
     """
     address::str ex. "127.0.0.1:5001"
     context::zmq.Context()
@@ -76,12 +76,18 @@ def get_subscriber_socket(address, context, tag=''):
     """
     LOG.debug('Creating subscriber socket for address %s', address)
     socket = context.socket(zmq.SUB)
-    uri = 'tcp://%s' % address
 
     if tag:
         socket.setsockopt(zmq.SUBSCRIBE, msg_pack(tag))
     else:
         socket.setsockopt_string(zmq.SUBSCRIBE, '')
 
-    socket.connect(uri)
+    if is_binder:
+        port = address.split(':')[-1]
+        uri = 'tcp://*:%s' % port
+        socket.bind(uri)
+    else:
+        uri = 'tcp://%s' % address
+        socket.connect(uri)
+
     return socket
