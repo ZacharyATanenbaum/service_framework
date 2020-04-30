@@ -343,36 +343,6 @@ def test_service_utils__run_main__connection_in_will_error():
         service_utils.run_main(config, conns, states, main_func, {})
 
 
-def test_service_utils__setup_sigint_handler_func__sucessfully_called_custom_sigint_handler():
-    """
-    Test if the service_framework will properly call a custom sigint handler function on
-    sigint.
-    """
-    LOG.info('Creating Subscriber Socket')
-    context = zmq.Context()
-    sub_socket = socket_utils.get_subscriber_socket('127.0.0.1:7007', context)
-
-    LOG.info('Running Server')
-    run_command = testing_utils.get_exec_command_for_python_program(SIGINT_PATH)
-    process = subprocess.Popen(run_command)
-
-    time.sleep(0.35) # Yeah, I know this isn't great. It's an integration test okay?
-    LOG.info('Running Kill Command')
-    process.send_signal(signal.SIGINT)
-
-    # If no SIGINT 1 then something wrong with main call...
-    payload1 = msgpack_utils.msg_unpack(sub_socket.recv())
-    LOG.info('Got payload 1: %s', payload1)
-
-    # If no SIGINT 2 then something wrong with sigint_handler call...
-    payload2 = msgpack_utils.msg_unpack(sub_socket.recv())
-    LOG.info('Got payload 2: %s', payload2)
-
-    assert payload1['args']['message'] == 'handler1'
-    assert payload2['args']['message'] == 'handler2'
-
-
-
 def test_service_utils__run_init_function__init_function_runs_properly():
     """
     Make sure the init function will run properly

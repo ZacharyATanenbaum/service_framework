@@ -23,7 +23,7 @@ class Publisher(BaseConnection):
         self.socket = None
 
     def __del__(self):
-        if hasattr(self, 'socket'):
+        if hasattr(self, 'socket') and self.socket:
             self.socket.close()
 
     @staticmethod

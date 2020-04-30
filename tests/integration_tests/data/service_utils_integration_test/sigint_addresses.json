@@ -2,7 +2,7 @@
   "connections": {
     "out": {
       "sigint_output": {
-        "publisher": "127.0.0.1:7007"
+        "publisher": "127.0.0.1:7077"
       }
     } 
   }

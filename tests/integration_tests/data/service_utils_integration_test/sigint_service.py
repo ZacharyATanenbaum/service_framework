@@ -9,6 +9,7 @@ LOG = get_logger()
 def main(to_send, config):
     def sigint_handler_1(*_):
         LOG.info('SIGINT HANDLER 1 PROPERLY CALLED!!!')
+        print('Sigint handler 1 was properly called')
         to_send('connection', 'sigint_output', {'message': 'handler1'})
         LOG.info('SENT SIGINT MESSAGE FROM HANDLER 1')
 
@@ -21,6 +22,7 @@ def main(to_send, config):
 
 def sigint_handler(sigint, frame, to_send, states, config):
     LOG.info('SIGINT HANDLER 2 PROPERLY CALLED!!!')
+    print('Sigint handler 2 was properly called')
     to_send('connection', 'sigint_output', {'message': 'handler2'})
     LOG.info('SENT SIGINT MESSAGE FROM HANDLER 2')
 
