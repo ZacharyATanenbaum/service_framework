@@ -79,7 +79,8 @@ class FullUpdateIn(BaseState):
         return {
             'required_creation_arguments': {},
             'optional_creation_arguments': {
-                'topic': str,
+                'is_binder': bool,
+                'topic': str
             },
         }
 
@@ -204,5 +205,6 @@ class FullUpdateIn(BaseState):
         return get_subscriber_socket(
             address,
             context,
-            topic
+            topic,
+            is_binder=opt_args('is_binder', False)
         )
