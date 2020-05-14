@@ -132,7 +132,7 @@ class FullUpdateIn(BaseState):
         }]
 }]
         """
-        model_function = self.model['optional_creation_arguments'].get('model_function')
+        model_function = self.model.get('optional_creation_arguments', {}).get('model_function')
 
         return [{
             'inbound_socket': self.socket,
@@ -209,5 +209,5 @@ class FullUpdateIn(BaseState):
             address,
             context,
             topic,
-            is_binder=opt_args('is_binder', False)
+            is_binder=opt_args.get('is_binder', False)
         )

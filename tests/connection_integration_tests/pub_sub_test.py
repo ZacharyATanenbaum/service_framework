@@ -2,9 +2,11 @@
 
 import subprocess
 from connection_testing_utils import get_exec_command_for_python_program
+from service_framework import get_logger
 
 BASE_DIR = './tests/connection_integration_tests/data/pub_sub_test'
 RUN_X_PUB_SUB_BUS = './tests/state_integration_tests/data/pub_sub_bus/run_bus.sh'
+LOG = get_logger()
 
 
 def test_regular_pub_sub_connections():
@@ -35,6 +37,7 @@ def test_full_update_states_with_topic_and_xpub_xsub_bus():
     run_x_in_path = f'{BASE_DIR}/run_x_full_in.sh'
     run_x_out_path = f'{BASE_DIR}/run_x_full_out.sh'
 
+    LOG.info('Test')
     xbus_command = get_exec_command_for_python_program(RUN_X_PUB_SUB_BUS)
     xin_command = get_exec_command_for_python_program(run_x_in_path)
     xout_command = get_exec_command_for_python_program(run_x_out_path)
