@@ -80,7 +80,8 @@ class FullUpdateIn(BaseState):
             'required_creation_arguments': {},
             'optional_creation_arguments': {
                 'is_binder': bool,
-                'topic': str
+                'topic': str,
+                'model_function': type(lambda x: None)
             },
         }
 
@@ -103,7 +104,7 @@ class FullUpdateIn(BaseState):
         """
         return {
             'required_state_arguments': {},
-            'required_State_arguments': {},
+            'optional_state_arguments': {},
         }
 
     @staticmethod
@@ -131,12 +132,14 @@ class FullUpdateIn(BaseState):
         }]
 }]
         """
+        model_function = self.model['optional_creation_arguments'].get('model_function')
+
         return [{
             'inbound_socket': self.socket,
             'decode_message': self._decode_message,
             'args_validator': self.args_validator,
             'state_function': self.update_state,
-            'model_function': None,
+            'model_function': model_function,
             'return_validator': self.return_validator,
             'return_function': None,
         }]
