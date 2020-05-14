@@ -217,8 +217,8 @@ Any service is able to write to and get the most updated state.
   - Only Method called in this service
   - ex. `main(to_send, states, config)`
 #### Optional Methods
-- Setup Configs
-  - ex. `setup_configs(config)`
+- Setup Config
+  - ex. `setup_config(config)`
   - This method is called before the main method.
   - This method is used to update the config before it's used.
   - This method merges the responses with the provided config. (Overwrites keys)
