@@ -11,7 +11,8 @@ class Service:
     """
 
     def __init__(self,
-                 service_path,
+                 service_path=None,
+                 service_module=None,
                  addresses=None,
                  config=None,
                  console_loglevel='INFO',
@@ -47,7 +48,7 @@ class Service:
             'backup_count': backup_count
         }
 
-        self.service_path = service_path
+        self.service_definition = service_path if service_path else service_module
         self.addresses = addresses
         self.config = config
 
@@ -63,7 +64,7 @@ class Service:
         """
         target = service_utils.entrance_point
         args = (
-            self.service_path,
+            self.service_definition,
             self.config,
             self.addresses,
             self.logger_args_dict,
@@ -76,7 +77,7 @@ class Service:
         This method is used to run the service here and block.
         """
         service_utils.entrance_point(
-            self.service_path,
+            self.service_definition,
             self.config,
             self.addresses,
             self.logger_args_dict,
@@ -89,7 +90,7 @@ class Service:
         """
         target = service_utils.entrance_point
         args = (
-            self.service_path,
+            self.service_definition,
             self.config,
             self.addresses,
             self.logger_args_dict
@@ -101,7 +102,7 @@ class Service:
         This method is used to run the service here and block.
         """
         service_utils.entrance_point(
-            self.service_path,
+            self.service_definition,
             self.config,
             self.addresses,
             self.logger_args_dict

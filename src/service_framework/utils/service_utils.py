@@ -16,9 +16,9 @@ LOG = logging_utils.get_logger()
 RUN_FLAG = True
 
 
-def entrance_point(service_path, config, addresses, logger_args_dict, is_main=False):
+def entrance_point(service_definition, config, addresses, logger_args_dict, is_main=False):
     """
-    service_path = './services/other_folder/service_file.py'
+    service_path::obj Either a string -> to then import the service file or an object itself.
     addresses = {
         'connections' {
             'in': {
@@ -43,24 +43,26 @@ def entrance_point(service_path, config, addresses, logger_args_dict, is_main=Fa
     """
     logging_utils.setup_package_logger(**logger_args_dict)
 
-    imported_service = utils.import_python_file_from_cwd(service_path)
-    config = setup_config(config if config is not None else {}, imported_service)
-    addresses = setup_addresses(addresses, imported_service, config)
-    connections = setup_service_connections(addresses, imported_service, config)
-    states = setup_service_states(addresses, imported_service, config)
+    if isinstance(service_definition, str):
+        service_definition = utils.import_python_file_from_cwd(service_definition)
+
+    config = setup_config(config if config is not None else {}, service_definition)
+    addresses = setup_addresses(addresses, service_definition, config)
+    connections = setup_service_connections(addresses, service_definition, config)
+    states = setup_service_states(addresses, service_definition, config)
 
     setup_sigint_handler_func(
-        imported_service,
+        service_definition,
         config,
         connections,
         states,
         logger_args_dict
     )
 
-    run_init_function(imported_service, connections, states, config, logger_args_dict)
+    run_init_function(service_definition, connections, states, config, logger_args_dict)
 
     if is_main:
-        run_main(imported_service.main, connections, states, config, logger_args_dict)
+        run_main(service_definition.main, connections, states, config, logger_args_dict)
     else:
         run_service(connections, states, config, logger_args_dict)
 

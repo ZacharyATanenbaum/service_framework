@@ -3,6 +3,7 @@
 import os
 import time
 from service_framework import Service
+from service_framework.utils.utils import import_python_file_from_cwd
 
 
 def test_service__init__service_can_be_constructed_with_just_service_path():
@@ -14,12 +15,12 @@ def test_service__init__service_can_be_constructed_with_just_service_path():
     service.stop_service() # Make sure to stop service!
 
 
-def test_service__services_can_be_run_programmatically():
+def test_service__services_can_be_run_with_paths():
     """
     Make sure the file loglevel and log folder function properly.
     """
-    requester_log_path = f'{BASE_LOG_DIR}/requester.log'
-    replyer_log_path = f'{BASE_LOG_DIR}/replyer.log'
+    requester_log_path = f'{BASE_LOG_DIR}/requester_with_paths.log'
+    replyer_log_path = f'{BASE_LOG_DIR}/replyer_with_paths.log'
 
     requester = Service(
         REQUESTER_PATH,
@@ -63,6 +64,62 @@ def test_service__services_can_be_run_programmatically():
 
     if not is_success:
         raise RuntimeError('Test failed, figure it out!')
+
+
+def test_service__services_can_be_run_with_imported_modules():
+    """
+    Make sure the file loglevel and log folder function properly.
+    """
+    requester_log_path = f'{BASE_LOG_DIR}/requester_with_modules.log'
+    replyer_log_path = f'{BASE_LOG_DIR}/replyer_with_modules.log'
+
+    requester_module = import_python_file_from_cwd(REQUESTER_PATH)
+    replyer_module = import_python_file_from_cwd(REPLYER_PATH)
+
+    requester = Service(
+        requester_module,
+        addresses=REQUESTER_ADDRS,
+        config=REQUESTER_CONFIG,
+        log_path=requester_log_path,
+        file_loglevel='DEBUG'
+    )
+    replyer = Service(
+        replyer_module,
+        addresses=REPLYER_ADDRS,
+        log_path=replyer_log_path,
+        file_loglevel='DEBUG'
+    )
+
+    replyer.run_service()
+    requester.run_service_as_main()
+
+    start = time.time()
+    is_success = False
+
+    while not is_success:
+        if time.time() - start > 1:
+            break
+
+        if not os.path.exists(requester_log_path):
+            continue
+
+        with open(requester_log_path, 'r') as requester_log:
+            for line in requester_log.readlines():
+                if 'GOT ALL RESPONSES' in line:
+                    is_success = True
+
+    replyer.stop_service() # Make sure to stop service!
+
+    if os.path.exists(requester_log_path):
+        os.remove(requester_log_path)
+
+    if os.path.exists(replyer_log_path):
+        os.remove(replyer_log_path)
+
+    if not is_success:
+        raise RuntimeError('Test failed, figure it out!')
+
+
 
 
 BASE_DIR = './tests/integration_tests'

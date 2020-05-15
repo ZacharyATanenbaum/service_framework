@@ -48,13 +48,16 @@ Below are the commands on how to use this class:
 ```
 # Useage Example
 
+from importlib import import_module
 from service_framework import Service
 
 service_relative_path = './path_to_service_file/service_specification.py'
+service_module = import_module('package.path.to.module')
 config = {'some_config_key': 'some_config_value'}
 addresses = {'look below this can get complicated'}
 
-my_service = Service(service_relative_path, config=config, addresses=addresses)
+my_service = Service(service_path=service_relative_path, config=config, addresses=addresses)
+also_my_service = Service(service_module=service_module, config=config, addresses=addresses)
 
 
 # To run the service as a "main service" or in "main mode" in the background.
