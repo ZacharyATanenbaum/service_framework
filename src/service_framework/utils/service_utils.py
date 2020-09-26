@@ -273,7 +273,7 @@ def run_main(main_func, connections, states, config, logger_args_dict):
         global RUN_FLAG
         RUN_FLAG = False
 
-    utils.add_sigint_handler(sigint_handler)
+    utils.add_sig_handler(sigint_handler, is_sigint=True)
     service_thread.daemon = True
     service_thread.start()
 
