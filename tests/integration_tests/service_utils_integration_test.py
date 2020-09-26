@@ -1,17 +1,11 @@
 """ File to house integration tests for the service utils """
 
 import os
-import signal
-import subprocess
 import time
 import uuid
 import pytest
-import zmq
-from service_framework import get_logger, Service
-from service_framework.utils import msgpack_utils, service_utils, socket_utils, utils
-import testing_utils
-
-LOG = get_logger()
+from service_framework import Service
+from service_framework.utils import service_utils, utils
 
 
 def test_service_utils__setup_service_connections__no_connection_models_case():
