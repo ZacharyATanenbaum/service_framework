@@ -51,7 +51,7 @@ def entrance_point(service_definition, config, addresses, logger_args_dict, is_m
     connections = setup_service_connections(addresses, service_definition, config)
     states = setup_service_states(addresses, service_definition, config)
 
-    setup_sigint_handler_func(
+    setup_sig_handler_funcs(
         service_definition,
         config,
         connections,
@@ -686,9 +686,9 @@ def setup_service_states(addresses, imported_service, config):
     return state_utils.setup_states(state_models, addresses)
 
 
-def setup_sigint_handler_func(imported_service, config, connections, states, logger_args_dict):
+def setup_sig_handler_funcs(imported_service, config, connections, states, logger_args_dict):
     """
-    This function is used to setup a custom sigint handler provided from
+    This function is used to setup a custom sigint and sigterm handler provided from
     the imported service.
     imported_service::module The imported service python file
     config = {'config_arg_1': 'config_value_1', ...}
@@ -715,24 +715,32 @@ def setup_sigint_handler_func(imported_service, config, connections, states, log
         backup_count: int,
     }
     """
-    if not hasattr(imported_service, 'sigint_handler'):
-        LOG.warning('No "sigint_handler" in Service File. Skipping Sigint setup...')
-        return
-
-    LOG.debug('Found "sigint_handler! Setting up now...')
     to_send = setup_to_send(
         states,
         connections,
         logger_args_dict
     )
 
-    def custom_sigint_handler(sigint, frame):
-        imported_service.sigint_handler(
-            sigint,
-            frame,
-            to_send,
-            get_current_states(states),
-            config
-        )
+    if hasattr(imported_service, 'sigint_handler'):
+        LOG.debug('Found "sigint_handler! Setting up now...')
+        def custom_sigint_handler(sigint, frame):
+            imported_service.sigint_handler(
+                sigint,
+                frame,
+                to_send,
+                get_current_states(states),
+                config
+            )
+        utils.add_sig_handler(custom_sigint_handler, is_sigint=True)
 
-    utils.add_sigint_handler(custom_sigint_handler)
+    if hasattr(imported_service, 'sigterm_handler'):
+        LOG.debug('Found "sigterm_handler! Setting up now...')
+        def custom_sigterm_handler(signum, frame):
+            imported_service.sigterm_handler(
+                signum,
+                frame,
+                to_send,
+                get_current_states(states),
+                config
+            )
+        utils.add_sig_handler(custom_sigterm_handler, is_sigint=False)

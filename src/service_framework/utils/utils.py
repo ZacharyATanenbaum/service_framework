@@ -10,19 +10,20 @@ import sys
 LOG = getLogger(__name__)
 
 
-def add_sigint_handler(new_handler_func):
+def add_sig_handler(new_handler_func, is_sigint=True):
     """
     Wraps setting the sigint handler to properly set the handler without
     overwriting the original sigint handler.
     func::def(signum, frame) Function to set the new handler
     """
-    previous_handler = signal.getsignal(signal.SIGINT)
+    signal_type = signal.SIGINT if is_sigint else signal.SIGTERM
+    previous_handler = signal.getsignal(signal_type)
 
-    def new_sigint_handler(sigint, frame):
+    def new_sig_handler(sigint, frame):
         new_handler_func(sigint, frame)
         previous_handler(sigint, frame)
 
-    signal.signal(signal.SIGINT, new_sigint_handler)
+    signal.signal(signal_type, new_sig_handler)
 
 
 def convert_path_to_import(path):

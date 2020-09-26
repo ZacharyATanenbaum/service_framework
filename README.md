@@ -272,6 +272,10 @@ return {
 - Sigint Handler
   - ex. `sigint_handler(sigint, frame, to_send, states, config)`
   - This method is called whenever a sigint is provided.
+- Sigterm Handler
+  - ex. `sigterm_handler(signum, frame, to_send, states, config)`
+  - This method is called whenever a sigterm is provided.
+
 #### Optional Models
 Each Model is only required if it's used in the leading edge service.
   - `config_model`
@@ -324,6 +328,11 @@ return {
 - Sigint Handler
   - ex. `sigint_handler(sigint, frame, to_send, states, config)`
   - This method is called whenever a sigint is provided.
+
+- Sigterm Handler
+  - ex. `sigterm_handler(sigint, frame, to_send, states, config)`
+  - This method is called whenever a sigterm is provided.
+
 
 - Init Function
   - ex. `init_function(to_send, states, config)`
@@ -563,12 +572,10 @@ Whenever a new message is recived it fully updates the local state.
   - Load States Config
   - Run setup\_states function
   - Get states (in and out)
-- Sigint Handler:
-  - Sets up Sigint handling if needed 
-  - Runs sigint\_handler
+- Sig Handlers:
+  - Sets up Sigint and sigterm handling if needed 
+  - Runs sigint\_handler and sigterm\_handler
 - Init Function:
   - Run init\_function before running main or service loop
 - Runs either main or service loop
 - [Honestly, check the ``entrance_point`` method](src/service_framework/utils/service_utils)
-
-
