@@ -20,8 +20,8 @@ def add_sig_handler(new_handler_func, is_sigint=True):
     previous_handler = signal.getsignal(signal_type)
 
     def new_sig_handler(sigint, frame):
-        new_handler_func(sigint, frame)
         previous_handler(sigint, frame)
+        new_handler_func(sigint, frame)
 
     signal.signal(signal_type, new_sig_handler)
 
