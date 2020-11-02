@@ -421,7 +421,8 @@ def setup_config(config, imported_service):
     return::{} ex. {**file_arguments, 'random_argument': 'HELLO'}
     """
     if not hasattr(imported_service, 'config_model') and config:
-        err = 'Must provide a "config_model" func in the service if using a config.'
+        err = 'Must provide a "config_model" func in service "{}" if using a config.'
+        err = err.format(imported_service.__name__)
         LOG.error(err)
         raise ValueError(err)
 

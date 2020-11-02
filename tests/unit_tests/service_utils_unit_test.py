@@ -65,6 +65,19 @@ def test_service_utils__setup_config__services_setup_config_functions_properly()
     remove_imported_object_module(imported_service)
 
 
+def test_service_utils__setup_config__config_model_function_needed():
+    """
+    Make sure the imported service has a config model.
+    """
+    imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
+    del imported_service.config_model
+    config = utils.get_json_from_rel_path(CONFIG_PATH)
+
+    with pytest.raises(ValueError):
+        config = service_utils.setup_config(config, imported_service)
+    remove_imported_object_module(imported_service)
+
+
 def test_service_utils__setup_config__config_creation_is_validated():
     """
     Make sure that the setup config function actually validates what's
