@@ -263,11 +263,6 @@ def run_main(main_func, connections, states, config, logger_args_dict):
         increment_id=False
     )
 
-    service_thread = threading.Thread(
-        target=run_service,
-        args=(connections, states, config, logger_args_dict)
-    )
-
     def sig_handler(signum, _):
         LOG.debug('Got SIGINT "%s"! Cleaning up...', signum)
         global RUN_FLAG
@@ -275,6 +270,11 @@ def run_main(main_func, connections, states, config, logger_args_dict):
 
     utils.add_sig_handler(sig_handler, is_sigint=True)
     utils.add_sig_handler(sig_handler, is_sigint=False)
+
+    service_thread = threading.Thread(
+        target=run_service,
+        args=(connections, states, config, logger_args_dict)
+    )
     service_thread.daemon = True
     service_thread.start()
 

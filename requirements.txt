@@ -19,7 +19,6 @@ pyparsing==2.4.6
 pytest==5.4.1
 pyzmq==19.0.0
 requests==2.23.0
--e git+git@github.com:ZacharyATanenbaum/service_framework.git@ad111798611bd6eb0c91fcafe8538cd79131b32a#egg=service_framework
 six==1.10.0
 sortedcontainers==2.1.0
 update-checker==0.16

@@ -22,7 +22,7 @@ def custom_encode(obj):
         return {'__uuid__': True, 'as_str': str(obj)}
 
     if isinstance(obj, numpy.ndarray):
-        return {'__numpy.ndarray__': True, 'as_str': obj.tostring()}
+        return {'__numpy.ndarray__': True, 'as_bytes': obj.tobytes()}
 
     return obj
 
@@ -43,7 +43,7 @@ def custom_decode(obj):
         return UUID(obj['as_str'])
 
     if '__numpy.ndarray__' in obj:
-        return numpy.frombuffer(obj['as_str'])
+        return numpy.frombuffer(obj['as_bytes'])
 
     return obj
 

@@ -40,7 +40,7 @@ def test_msgpack_utils__custom_encode__can_encode_numpy_ndarray():
     """
     to_test = numpy.ndarray([1, 2, 3, 4, 5])
     encoded = msgpack_utils.custom_encode(to_test)
-    assert encoded == {'__numpy.ndarray__': True, 'as_str': to_test.tostring()}
+    assert encoded == {'__numpy.ndarray__': True, 'as_bytes': to_test.tobytes()}
 
 
 def test_msgpack_utils__custom_encode__do_nothing_for_regular_obj():
@@ -87,7 +87,7 @@ def test_msgpack_utils__custom_decode__can_decode_numpy_ndarray():
     Make sure the customer decoder can decode numpy ndarray
     """
     to_test = numpy.ndarray([1])
-    encoded = {'__numpy.ndarray__': True, 'as_str': to_test.tostring()}
+    encoded = {'__numpy.ndarray__': True, 'as_bytes': to_test.tobytes()}
     decoded = msgpack_utils.custom_decode(encoded)
     assert to_test == decoded
 
