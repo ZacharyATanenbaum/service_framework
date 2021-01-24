@@ -60,7 +60,7 @@ def get_arguments():
         '-wt',
         '--service_loop_min_wait_time_s',
         default=0,
-        type=int,
+        type=float,
         help='Min wait time between each service loop'
     )
 
