@@ -18,7 +18,8 @@ class Service:
                  console_loglevel='INFO',
                  log_path=None,
                  file_loglevel='INFO',
-                 backup_count=24):
+                 backup_count=24,
+                 service_loop_min_wait_time_s=0):
         """
         service_path = './services/other_folder/service_file.py'
         config = {
@@ -51,6 +52,7 @@ class Service:
         self.service_definition = service_path if service_path else service_module
         self.addresses = addresses
         self.config = config
+        self.service_loop_min_wait_time_s = service_loop_min_wait_time_s
 
         self.process = None
 
@@ -68,7 +70,8 @@ class Service:
             self.config,
             self.addresses,
             self.logger_args_dict,
-            True
+            True,
+            self.service_loop_min_wait_time_s
         )
         self._run_target_in_background(target, args)
 
@@ -81,7 +84,8 @@ class Service:
             self.config,
             self.addresses,
             self.logger_args_dict,
-            True
+            True,
+            self.service_loop_min_wait_time_s
         )
 
     def run_service(self):
@@ -93,7 +97,9 @@ class Service:
             self.service_definition,
             self.config,
             self.addresses,
-            self.logger_args_dict
+            self.logger_args_dict,
+            False,
+            self.service_loop_min_wait_time_s
         )
         self._run_target_in_background(target, args)
 
@@ -105,7 +111,9 @@ class Service:
             self.service_definition,
             self.config,
             self.addresses,
-            self.logger_args_dict
+            self.logger_args_dict,
+            False,
+            self.service_loop_min_wait_time_s
         )
 
     def stop_service(self):

@@ -1,6 +1,7 @@
 """ File to house service utility functions """
 
 import threading
+import time
 import uuid
 import zmq
 from service_framework.utils import (
@@ -16,7 +17,13 @@ LOG = logging_utils.get_logger()
 RUN_FLAG = True
 
 
-def entrance_point(service_definition, config, addresses, logger_args_dict, is_main=False):
+def entrance_point(
+        service_definition,
+        config,
+        addresses,
+        logger_args_dict,
+        is_main=False,
+        min_wait_time_s=0):
     """
     service_path::obj Either a string -> to then import the service file or an object itself.
     addresses = {
@@ -62,9 +69,22 @@ def entrance_point(service_definition, config, addresses, logger_args_dict, is_m
     run_init_function(service_definition, connections, states, config, logger_args_dict)
 
     if is_main:
-        run_main(service_definition.main, connections, states, config, logger_args_dict)
+        run_main(
+            service_definition.main,
+            connections,
+            states,
+            config,
+            logger_args_dict,
+            min_wait_time_s
+        )
     else:
-        run_service(connections, states, config, logger_args_dict)
+        run_service(
+            connections,
+            states,
+            config,
+            logger_args_dict,
+            min_wait_time_s
+        )
 
 
 def get_all_new_payloads(polling_list, poller):
@@ -222,7 +242,7 @@ def run_init_function(imported_service, connections, states, config, logger_args
         LOG.warning('Could not find "init_function" in service. Skipping...')
 
 
-def run_main(main_func, connections, states, config, logger_args_dict):
+def run_main(main_func, connections, states, config, logger_args_dict, min_wait_time_s=0):
     """
     This is used to run a program that will be on the leading edge of a
     Python Service Framework graph or a program that will not respond to
@@ -273,7 +293,13 @@ def run_main(main_func, connections, states, config, logger_args_dict):
 
     service_thread = threading.Thread(
         target=run_service,
-        args=(connections, states, config, logger_args_dict)
+        args=(
+            connections,
+            states,
+            config,
+            logger_args_dict,
+            min_wait_time_s
+        )
     )
     service_thread.daemon = True
     service_thread.start()
@@ -283,7 +309,7 @@ def run_main(main_func, connections, states, config, logger_args_dict):
     RUN_FLAG = False # Not needed, but makes tests run much faster
 
 
-def run_service(connections, states, config, logger_args_dict):
+def run_service(connections, states, config, logger_args_dict, min_wait_time_s=0):
     """
     connections = {
         'in': {
@@ -324,6 +350,10 @@ def run_service(connections, states, config, logger_args_dict):
     LOG.debug('Starting Service Loop...')
     global RUN_FLAG
     while RUN_FLAG:
+
+        if min_wait_time_s:
+            time.sleep(min_wait_time_s)
+
         payloads = get_all_new_payloads(polling_list, poller)
 
         for idx, payload in enumerate(payloads):

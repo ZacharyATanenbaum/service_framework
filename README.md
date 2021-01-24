@@ -33,6 +33,7 @@ Below are a few useful arguments...
 -c  Config Path
 -m  Main Mode Flag
 -s  Service Path (Relative)
+-wt Min Wait Time between each service loop
 
 # Used for Logging
 -cl Console Log Level
@@ -81,6 +82,7 @@ console_loglevel='INFO'
 log_path=None
 file_loglevel='INFO'
 backup_count=24
+service_loop_min_wait_time=0
 ```
 These Parameters are the same as their command line compatriates.
 

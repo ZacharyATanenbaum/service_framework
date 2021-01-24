@@ -29,7 +29,8 @@ def main():
         console_loglevel=args.console_loglevel,
         log_path=args.log_path,
         file_loglevel=args.file_loglevel,
-        backup_count=args.backup_count
+        backup_count=args.backup_count,
+        service_loop_min_wait_time_s=args.service_loop_min_wait_time_s
     )
 
     if args.main_mode:
@@ -55,6 +56,13 @@ def get_arguments():
     parser.add_argument('-bc', '--backup_count', default=24, help='Num of hourly file backups')
     parser.add_argument('-f', '--file_loglevel', default='INFO', help='See name')
     parser.add_argument('-l', '--log_path', default=None, help='Log file path')
+    parser.add_argument(
+        '-wt',
+        '--service_loop_min_wait_time_s',
+        default=0,
+        type=int,
+        help='Min wait time between each service loop'
+    )
 
     args, unknown_args = parser.parse_known_args()
     print('Using Arguments:', args)
