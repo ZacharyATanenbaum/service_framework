@@ -317,8 +317,11 @@ def run_service(connections, states, config, logger_args_dict):
     sockets = [item['inbound_socket'] for item in polling_list]
     poller = socket_utils.get_poller_socket(sockets)
 
-    LOG.debug('Starting Service Loop...')
+    if not polling_list:
+        LOG.debug('Not Starting Service Loop due to no polling list...')
+        return
 
+    LOG.debug('Starting Service Loop...')
     global RUN_FLAG
     while RUN_FLAG:
         payloads = get_all_new_payloads(polling_list, poller)
