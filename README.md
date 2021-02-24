@@ -1,6 +1,8 @@
 
 # Service Framework
 
+**Note** This library is currently in alpha. While I use it for a few private repos this library can be changes at any moment.
+
 ## Installing
 ### As a Library
 ```
@@ -25,7 +27,7 @@ python -m service_framework
 
 service_framework
 ```
-#### Useful Comamnd Line Arguments
+#### Useful Command Line Arguments
 Below are a few useful arguments...
 ```
 # Used for Service Setup
@@ -84,11 +86,11 @@ file_loglevel='INFO'
 backup_count=24
 service_loop_min_wait_time=0
 ```
-These Parameters are the same as their command line compatriates.
+These Parameters are the same as their command line counterparts.
 
 
 #### Logging
-To log inside of your service file import the logger that's precreated.
+To log inside of your service file import the logger that's pre-created.
 ```
 from service_framework import get_logger
 
@@ -97,7 +99,7 @@ LOG = get_logger()
 
 
 #### Addresses Path
-If the addresses path is provided, the addresses json file will be loaded into the service framework.
+If the addresses path is provided, the addresses JSON file will be loaded into the service framework.
 This allows the framework to setup each connection of the services connections.
 Example:
 ```
@@ -117,18 +119,6 @@ Example:
       },
     },
     "out": {}
-  },
-  "states": {
-    "in": {
-      "state_name": {
-        "socket_name": "127.0.0.1:9001",
-        "socket_name_2": "127.0.0.1:9002"
-      },
-      "state_name_2": {
-        "socket_name": "111.111.11.1:2222"
-      },
-    },
-    "out": {},
   }
 }
 ```
@@ -158,8 +148,8 @@ Example:
 
 #### Main Mode Flag
 This flag is used to start the service in "main\_mode".
-This mode __DOES NOT__ allow the use of inbound connections or states at all.
-It simply runs the provided main function in the service and all the connections/statess corresponding with the provided models.
+This mode __DOES NOT__ allow the use of inbound connections at all.
+It simply runs the provided main function in the service and all the connections corresponding with the provided models.
 The main function must have a predefined signature seen below.
 
 ```
@@ -209,18 +199,13 @@ If all services are plotted as a graph where they are connected by connections t
 A service is a block of code that does one thing and one thing well.
 The goal of this framework is to make spinning up and dealing with a large number of services easily.
 
-### States
-States are where information is stored in the system.
-Any service is able to write to and get the most updated state.
-
-
 
 ## Implementation
 ### Leading Edge Services
 #### Required Methods
 - Main Method
   - Only Method called in this service
-  - ex. `main(to_send, states, config)`
+  - ex. `main(to_send, config)`
 #### Optional Methods
 - Setup Config
   - ex. `setup_config(config)`
@@ -254,43 +239,25 @@ return {
   },
 }
 ```
-- Setup States
-  - ex. `setup_states(config)`
-  - This method is only required if a state has required arguments
-  - This method is called at the start of the service
-  - This method must return all arguments for the given state name.
-  - ex.
-```
-return {
-  'state_name_1': {
-    'argument_1': 'value',
-    'argument_2': 123, 
-  },
-  'state_name_2': {
-    'argument_1': 'test_test',
-  },
-}
-```
 - Sigint Handler
-  - ex. `sigint_handler(sigint, frame, to_send, states, config)`
+  - ex. `sigint_handler(sigint, frame, to_send, config)`
   - This method is called whenever a sigint is provided.
 - Sigterm Handler
-  - ex. `sigterm_handler(signum, frame, to_send, states, config)`
+  - ex. `sigterm_handler(signum, frame, to_send, config)`
   - This method is called whenever a sigterm is provided.
 
 #### Optional Models
 Each Model is only required if it's used in the leading edge service.
   - `config_model`
   - `connection_models`
-  - `state_models`
 
 
 ### Services
 #### Required Methods
 - Method for each "in" Connection Model
-  - This method is called whenever a message from this connection is recieved
+  - This method is called whenever a message from this connection is received
   - The mapping between function and model is located in the model
-  - ex. `function_name_in_conn_model(args, to_send, states, config)`
+  - ex. `function_name_in_conn_model(args, to_send, config)`
 
 #### Optional Methods
 - Setup Connections Method
@@ -310,34 +277,17 @@ return {
   },
 }
 ```
-- Setup States Model
-  - ex. `setup_states(config)`
-  - This method is only required if a state has required arguments
-  - This method is called at the start of the service
-  - This method must return all arguments for the given state name.
-  - ex.
-```
-return {
-  'state_name_1': {
-    'argument_1': 'value',
-    'argument_2': 123, 
-  },
-  'state_name_2': {
-    'argument_1': 'test_test',
-  },
-}
-```
 - Sigint Handler
-  - ex. `sigint_handler(sigint, frame, to_send, states, config)`
+  - ex. `sigint_handler(sigint, frame, to_send, config)`
   - This method is called whenever a sigint is provided.
 
 - Sigterm Handler
-  - ex. `sigterm_handler(sigint, frame, to_send, states, config)`
+  - ex. `sigterm_handler(sigint, frame, to_send, config)`
   - This method is called whenever a sigterm is provided.
 
 
 - Init Function
-  - ex. `init_function(to_send, states, config)`
+  - ex. `init_function(to_send, config)`
   - This method is called before the main method or service framework.
 
 
@@ -345,10 +295,6 @@ return {
 Models are only needed if used in the service.
   - `config_model`
   - `connection_models`
-  - `state_models`
-
-### States
-States are an abstract concept. They're used to hold information and are implemented entirely by the framework. All you, the developer, has to implement is the state models.
 
 ### Parameters Passed
 #### "args"::dict
@@ -356,26 +302,13 @@ When this function is called these are the "arguments" passed. These arguments a
 
 #### "to\_send"::function
 ```
-def to_send(output_type, output_name, args):
+def to_send(connection_name, args):
     """
-    output_type::str Either 'state' or 'connection' depending on which to update.
-    output_name::str The name of the above output defined in the corresponding model.
+    connection_name::str The name of the connection defined in the corresponding model.
     args::{'str': value} This is a dict of the args to be passed to the connection.
     """
 ```
-This function takes the provided args and sends them to the desired output. If a connection is chosen, this method sends the arguments to the desired connection. If a state is chosen, this method sends the arguments to update that state.
-
-#### states::dict
-This is a dictionary that holds all of the current up-to-date state information that's defined in the model. All input states will be in this state dictionary as the following example:
-```
-states = {
-    "state_name_1": 'value!',
-    "state_name_2": {
-        'key_1': Decimal(123.321),
-    },
-    "state_name_3": ['value1', 1234, 'value3'],
-}
-```
+This function takes the provided args and sends them to the desired connection.
 
 #### "config"::dict
 This is a dictionary that is a culmination of config file data and environment variables.
@@ -442,50 +375,6 @@ connection_models = {
 }
 ```
 
-### State Model
-#### Overview
-The state holds information and can either be a database, local variable, global variable, etc.
-#### Example
-```
-state_models = {
-    'in': {
-        'market_price': {
-            'state_type': 'local_variable_delta_update', # Required
-            'required_creation_arguments': {},           # Optional
-            'optional_creation_arguments': {},           # Optional
-            'required_state_arguments': {},              # Depends on the State
-            'optional_state_arguments': {},              # Depends on the State
-            'required_arguments': {                      # Optional
-                'min_ask': Decimal,
-                'max_bid': Decimal,
-                'time_ask': datetime,
-                'time_bid': datetime,
-            },
-            'optional_arguments': {},                    # Optional
-            'required_return_arguments': {},             # Optional
-            'optional_return_arguments': {},             # Optional
-        },
-        'order_book': {
-            'state_type': 'local_variable_delta_update', # Required
-            'required_creation_arguments': {},           # Optional
-            'optional_creation_arguments': {},           # Optional
-            'required_state_arguments': {},              # Depends on the State
-            'optional_state_arguments': {},              # Depends on the State
-            'required_arguments': {                      # Optional
-                'asks': {Decimal: Decimal},
-                'bids': {Decimal: Decimal},
-                'updated_time': datetime,
-            },
-            'optional_arguments': {},                    # Optional
-            'required_return_arguments': {},             # Optional
-            'optional_return_arguments': {},             # Optional
-        },
-    },
-}
-```
-
-
-
 ## Connection Types
 ### In
 #### Replyer
@@ -516,35 +405,6 @@ Can use ``to_send('connection', 'requester_conn_name', {'args': 'here'}`` to sen
 [Link to Requester File](src/service_framework/connections/out/requester.py)
 
 
-## State Types
-### In
-#### Delta Update In
-This state is used to perform delta updates.
-If a new message is marked as a snapshot it will overwrite the local state.
-Otherwise it will make sure the local state is exact with the tied to Delta Update Out State via the current number and perform only a delta update to the local state.
-[Link to Delta Update In File](src/service_framework/states/in/delta_update_in.py)
-
-#### Full Update In
-This state is used to perform full updates.
-If a new message is sent by the corresponding Full Update Out state it will fully overwrite the local state.
-[Link to Full Update In File](src/service_framework/states/in/full_update_in.py)
-
-
-### Out
-#### Delta Update Out
-This state is used to output delta updates.
-If a payload is sent with the ``is_snapshat`` field set to True, then the dependant states will fully update their local state.
-Otherwise, the dependant states will only perform a delta update based on the provided information.
-[Link to Delta Update Out File](src/service_framework/states/out/delta_update_out.py)
-
-
-#### Full Update Out
-This state is used to perform a full update.
-Whenever a new message is recived it fully updates the local state.
-[Link to Full Update Out File](src/service_framework/states/out/full_update_out.py)
-
-
-
 ## Field and Argument Examples
 ### Dictionary
 ```
@@ -570,10 +430,6 @@ Whenever a new message is recived it fully updates the local state.
   - Load Connections Config
   - Run setup\_connections function
   - Get connections (in and out)
-- States:
-  - Load States Config
-  - Run setup\_states function
-  - Get states (in and out)
 - Sig Handlers:
   - Sets up Sigint and sigterm handling if needed 
   - Runs sigint\_handler and sigterm\_handler
