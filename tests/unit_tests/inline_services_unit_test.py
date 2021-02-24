@@ -9,11 +9,13 @@ def test_inline_services__services_can_be_run_with_paths():
     Make sure that services can be run together with inline services
     provided via paths.
     """
+    # TODO: Finish this file
     inline = InlineServices()
     inline.set_main_service('requester', REQUESTER_PATH)
-    inline.add_service('replyer', REPLYER_PATH, {
+    inline.add_service('replyer', REPLYER_PATH)
+    inline.add_relation('requester', 'request', 'replyer', 'reply')
+    inline.start()
 
-    })
 
 
 def test_inline_services__services_can_be_run_with_imported_modules():
@@ -29,9 +31,32 @@ def test_inline_services__can_have_multiple_dependent_services():
     """
 
 
+def test_inline_services__adding_second_service_with_same_name_errors():
+    """
+    """
 
-BASE_DIR = './tests/integration_tests'
-BASE_LOG_DIR = f'{BASE_DIR}/logs/service_integration_test/service_can_be_run_programmatically'
+
+def test_inline_services__adding_second_main_service_throws_error():
+    """
+    """
+
+
+def test_inline_services__starting_without_main_service_throws_error():
+    """
+    """
+
+
+def test_inline_services__adding_relation_with_improper_out_service_name_throws_error():
+    """
+    """
+
+
+def test_inline_services__adding_relation_with_improper_in_service_name_throws_error():
+    """
+    """
+
+
+BASE_DIR = './tests/unit_tests'
 
 DO_NOTHING_PATH = f'{BASE_DIR}/data/service_integration_test/do_nothing_service.py'
 REPLYER_PATH = f'{BASE_DIR}/data/service_integration_test/replyer_service.py'
