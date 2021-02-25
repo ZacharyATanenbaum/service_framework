@@ -67,7 +67,7 @@ def test_connection_utils__get_connection__valid_get_replyer_case():
     Test if the get_connection function can make a replyer and a requester
     connection that succeeds.
     """
-    requester_address = ADDRESSES['connections']['out']['requester_connection']
+    requester_address = ADDRESSES['out']['requester_connection']
     requester_model = CONNECTION_MODELS['out']['requester_connection']
 
     requester = connection_utils.get_connection(
@@ -325,15 +325,13 @@ class BasicCreationArgsTestingConnection(connection_utils.BaseConnection):
 
 
 ADDRESSES = {
-    'connections': {
-        'out': {
-            'requester_connection': {
-                'requester': '127.0.0.1:8877',
-            },
-            'requester_connection_2': {
-                'requester': '127.0.0.1:8877',
-            },
-        }
+    'out': {
+        'requester_connection': {
+            'requester': '127.0.0.1:8877',
+        },
+        'requester_connection_2': {
+            'requester': '127.0.0.1:8877',
+        },
     }
 }
 

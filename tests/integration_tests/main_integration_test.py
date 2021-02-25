@@ -92,21 +92,17 @@ OUTBOUND_PATH = f'{SERVICE_DIR}/outbound_service.py'
 OUTBOUND_LOG_PATH = f'{LOG_DIR}/outbound_service.log'
 
 INBOUND_ADDRS = {
-    "connections": {
-        "in": {
-            "reply": {
-                "replyer": "127.0.0.1:18991"
-            }
+    "in": {
+        "reply": {
+            "replyer": "127.0.0.1:18991"
         }
     }
 }
 
 OUTBOUND_ADDRS = {
-    "connections": {
-        "out": {
-            "request": {
-                "requester": "127.0.0.1:18991"
-            }
+    "out": {
+        "request": {
+            "requester": "127.0.0.1:18991"
         }
     }
 }

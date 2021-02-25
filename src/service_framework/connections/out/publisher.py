@@ -50,19 +50,10 @@ class Publisher(BaseConnection):
         }
 
     @staticmethod
-    def get_compatable_connection_types():
-        """
-        This is needed so the service framework knows which
-        connections this current connection is compatable.
-        return::['str'] A list of the compatable connections
-        """
-        return ['subscriber']
-
-    @staticmethod
     def get_connection_arguments_model():
         """
         This is needed so the BaseConnection can validate the provided
-        model explicitly states the arguments to be passed on each
+        model explicitly state the arguments to be passed on each
         send message.
         return = {
             'required_connection_arguments': {
@@ -79,15 +70,6 @@ class Publisher(BaseConnection):
             'required_connection_arguments': {},
             'optional_connection_arguments': {},
         }
-
-    @staticmethod
-    def get_connection_type():
-        """
-        This is needed so the build system knows what
-        connection type this connection is considered.
-        return::str The socket type of this connection.
-        """
-        return 'publisher'
 
     @staticmethod
     def get_creation_arguments_model():
@@ -123,7 +105,7 @@ class Publisher(BaseConnection):
             'decode_message': def(bytes) -> payload,
             'args_validator': def(args),
             'connection_function': def(args) -> args or None,
-            'model_function': def(args, to_send, states, conifg) -> return_args or None,
+            'model_function': def(args, to_send, conifg) -> return_args or None,
             'return_validator': def(return_args)
             'return_function': def(return_args),
         }]
@@ -145,7 +127,7 @@ class Publisher(BaseConnection):
 
     def send(self, payload):
         """
-        Method needed for child connection classes to update the state.
+        Method needed for child connection classes to update.
         """
         LOG.debug(
             'Attempting to send connection payload "%s" to address "%s" w/ topic "%s"',

@@ -130,21 +130,17 @@ REPLYER_PATH = f'{BASE_DIR}/data/service_integration_test/replyer_service.py'
 REQUESTER_PATH = f'{BASE_DIR}/data/service_integration_test/requester_service.py'
 
 REPLYER_ADDRS = {
-    "connections": {
-        "in": {
-            "reply": {
-                "replyer": "127.0.0.1:18777"
-            }
+    "in": {
+        "reply": {
+            "replyer": "127.0.0.1:18777"
         }
     }
 }
 
 REQUESTER_ADDRS = {
-    "connections": {
-        "out": {
-            "request": {
-                "requester": "127.0.0.1:18777"
-            }
+    "out": {
+        "request": {
+            "requester": "127.0.0.1:18777"
         }
     }
 }

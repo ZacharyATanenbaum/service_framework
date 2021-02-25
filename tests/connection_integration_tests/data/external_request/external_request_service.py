@@ -26,7 +26,7 @@ def main(to_send, config):
     product_id = config['product_id']
 
     LOG.info('Sending message out to Coinbase Pro for product_id: "%s"', product_id)
-    response = to_send('connection', 'external_request', {'product_id': product_id})
+    response = to_send('external_request', {'product_id': product_id})
     LOG.info('Got response: %s', response)
 
     LOG.info('SUCCESS_HITTING_EXTERNAL_SERVICE')

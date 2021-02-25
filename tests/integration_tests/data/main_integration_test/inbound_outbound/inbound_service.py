@@ -17,7 +17,7 @@ def main(to_send, config):
             LOG.info('SUCCESS!')
 
 
-def on_new_request(args, to_send, states, config):
+def on_new_request(args, to_send, config):
     """
     Method triggered when a new request is recieved from
     a requester.

@@ -26,28 +26,7 @@ def setup_connection_models(models, config):
     return models
 
 
-def setup_state_models(models, config):
-    """
-    This function is used to modify the needed states prior to initializing
-    said states.
-    models::{}
-    return::{}
-    """
-    models['out'] = {
-        'out_state_1': {
-            'state_type': 'full_update_out',
-            'optional_creation_arguments': {
-                'wait_after_creation_s': 0.0
-            },
-            'required_arguments': {
-                'this_is_a_test_arg': str,
-            },
-        },
-    }
-    return models
-
-
-def on_new_request(args, to_send, states, config):
+def on_new_request(args, to_send, config):
     """
     This function is needed to respond to a request message from a requester.
     """
@@ -67,18 +46,6 @@ connection_models = {
             },
             'required_return_arguments': {
                 'this_is_a_return_arg': str,
-            },
-        },
-    },
-}
-
-
-state_models = {
-    'in': {
-        'in_state_1': {
-            'state_type': 'full_update_in',
-            'required_arguments': {
-                'this_is_a_test_arg': str,
             },
         },
     },

@@ -21,15 +21,8 @@ def main(to_send, config):
     for num in range(config['num_req_to_send']):
         payload = {'to_echo': 'Hello World - ' + str(num)}
 
-        print('Sending payload: ... ')
-
         LOG.info('Sending payload: %s', payload)
-        returned = to_send(
-            'connection',
-            'request',
-            payload
-        )
-
+        returned = to_send('request', payload)
         LOG.info('Got Response: %s', returned)
 
 

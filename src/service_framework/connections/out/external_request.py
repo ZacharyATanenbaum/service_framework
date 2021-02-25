@@ -36,19 +36,10 @@ class ExternalRequest(BaseConnection):
         return {}
 
     @staticmethod
-    def get_compatable_connection_types():
-        """
-        This is needed so the build system knows which
-        connection types this connection is compatable.
-        return::['str'] A list of the compatable socket types.
-        """
-        return []
-
-    @staticmethod
     def get_connection_arguments_model():
         """
         This is needed so the BaseConnection can validate the provided
-        model explicitly states the arguments to be passed on each
+        model explicitly state the arguments to be passed on each
         send message.
         return = {
             'required_connection_arguments': {
@@ -65,15 +56,6 @@ class ExternalRequest(BaseConnection):
             'required_connection_arguments': {},
             'optional_connection_arguments': {},
         }
-
-    @staticmethod
-    def get_connection_type():
-        """
-        This is needed so the build system knows what
-        connection type this connection is considered.
-        return::str The socket type of this connection.
-        """
-        return 'external_request'
 
     @staticmethod
     def get_creation_arguments_model():
@@ -113,7 +95,7 @@ class ExternalRequest(BaseConnection):
             'decode_message': def(bytes) -> payload,
             'arg_validator': def(args),
             'connection_function': def(args) -> args or None,
-            'model_function': def(args, to_send, states, conifg) -> return_args or None,
+            'model_function': def(args, to_send, conifg) -> return_args or None,
             'return_validator': def(return_args)
             'return_function': def(return_args),
         }]

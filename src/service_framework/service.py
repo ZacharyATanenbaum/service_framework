@@ -27,15 +27,12 @@ class Service:
             'config_2': 12345
         }
         addresses = {
-            'connections' {
-                'in': {
-                    'connection_name': {
-                        'socket_name': str
-                    },
+            'in': {
+                'connection_name': {
+                    'socket_name': str
                 },
-                'out': {},
             },
-            'states': {}
+            'out': {},
         }
         console_loglevel::str Level of the console logger (if used, None to disable)
         log_path::str The location of the folder to output logs (if used, None to disable)

@@ -44,84 +44,21 @@ def test_service_utils__setup_service_connections__connection_models_and_setup_c
     assert conn.__class__.__name__ == 'Requester'
 
 
-def test_service_utils__setup_service_states__state_models_case():
-    """
-    Make sure setup_service_states actually works properly.
-    """
-    imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
-    config = {}
-    cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    state = states['in']['in_state_1']
-    assert state.__class__.__name__ == 'FullUpdateIn'
-
-
-def test_service_utils__setup_service_states__state_models_and_setup_state_models_case():
-    """
-    Make sure setup_state_models actually works properly...
-    """
-    imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
-    config = {}
-    cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    state = states['out']['out_state_1']
-    assert state.__class__.__name__ == 'FullUpdateOut'
-
-
-def test_service_utils__setup_to_send__invalid_output_type_for_to_send():
-    """
-    Make sure to_send will not send if the output type is not 'connection' or
-    'state'
-    """
-    imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
-    config = {}
-    cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    to_send = service_utils.setup_to_send(states, connections, {})
-    args = {'this_is_a_test_field': 'Hi'}
-
-    with pytest.raises(ValueError):
-        to_send('banana', 'out_state_1', args)
-
-
 def test_service_utils__setup_to_send__valid_connection_output_type_for_to_send():
     """
-    Make sure that both sending will function if the output type is a connection
+    Make sure that sending will function if the output type is a connection
     """
     imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
     config = {}
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
     connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    to_send = service_utils.setup_to_send(states, connections, {})
+    to_send = service_utils.setup_to_send(connections, {})
 
     out_connection = connections['out']['out_connection_1']
     out_connection.args_validator = lambda args: None
     out_connection.send = lambda payload: RETURN_PAYLOAD
-    to_send('connection', 'out_connection_1', {})
-
-
-def test_service_utils__setup_to_send__valid_state_output_type_for_to_send():
-    """
-    Make sure that both sending will function if the output type is a state
-    """
-    imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
-    config = {}
-    cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    to_send = service_utils.setup_to_send(states, connections, {})
-
-    out_state = states['out']['out_state_1']
-    out_state.args_validator = lambda args: None
-    out_state.send = lambda payload: None
-    to_send('state', 'out_state_1', {})
+    to_send('out_connection_1', {})
 
 
 def test_service_utils__setup_to_send__args_are_put_into_to_send_payload():
@@ -143,11 +80,10 @@ def test_service_utils__setup_to_send__args_are_put_into_to_send_payload():
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
     connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    to_send = service_utils.setup_to_send(states, connections, {})
+    to_send = service_utils.setup_to_send(connections, {})
 
     connections['out']['out_connection_1'].send = check_payload
-    to_send('connection', 'out_connection_1', PROPER_ARGS)
+    to_send('out_connection_1', PROPER_ARGS)
 
 
 def test_service_utils__setup_to_send__workflow_id_put_into_to_send_payload():
@@ -169,9 +105,7 @@ def test_service_utils__setup_to_send__workflow_id_put_into_to_send_payload():
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
     connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(
-        states,
         connections,
         {},
         workflow_id=workflow_id,
@@ -179,7 +113,7 @@ def test_service_utils__setup_to_send__workflow_id_put_into_to_send_payload():
     )
 
     connections['out']['out_connection_1'].send = check_payload
-    to_send('connection', 'out_connection_1', PROPER_ARGS)
+    to_send('out_connection_1', PROPER_ARGS)
 
 
 def test_service_utils_setup_to_send__workflow_id_incremented_on_to_send_calls():
@@ -212,9 +146,7 @@ def test_service_utils_setup_to_send__workflow_id_incremented_on_to_send_calls()
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
     connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(
-        states,
         connections,
         {},
         workflow_id=workflow_id,
@@ -224,7 +156,7 @@ def test_service_utils_setup_to_send__workflow_id_incremented_on_to_send_calls()
     connections['out']['out_connection_1'].send = check_payload
 
     for _ in range(4):
-        to_send('connection', 'out_connection_1', PROPER_ARGS)
+        to_send('out_connection_1', PROPER_ARGS)
 
 
 def test_service_utils_setup_to_send__workflow_id_constant_on_to_send_calls():
@@ -248,9 +180,7 @@ def test_service_utils_setup_to_send__workflow_id_constant_on_to_send_calls():
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
     connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
     to_send = service_utils.setup_to_send(
-        states,
         connections,
         {},
         workflow_id=workflow_id,
@@ -260,7 +190,7 @@ def test_service_utils_setup_to_send__workflow_id_constant_on_to_send_calls():
     connections['out']['out_connection_1'].send = check_payload
 
     for _ in range(4):
-        to_send('connection', 'out_connection_1', PROPER_ARGS)
+        to_send('out_connection_1', PROPER_ARGS)
 
 
 
@@ -273,13 +203,12 @@ def test_service_utils__setup_to_send__to_send_validates_args_case():
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
     connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    to_send = service_utils.setup_to_send(states, connections, {})
+    to_send = service_utils.setup_to_send(connections, {})
 
     connections['out']['out_connection_1'].send = lambda payload: None
 
     with pytest.raises(ValueError):
-        to_send('connection', 'out_connection_1', {})
+        to_send('out_connection_1', {})
 
 
 def test_service_utils__setup_to_send__to_send_validates_returned_args_case():
@@ -291,13 +220,12 @@ def test_service_utils__setup_to_send__to_send_validates_returned_args_case():
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
     connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    to_send = service_utils.setup_to_send(states, connections, {})
+    to_send = service_utils.setup_to_send(connections, {})
 
     connections['out']['out_connection_1'].send = lambda payload: None
 
     with pytest.raises(ValueError):
-        to_send('connection', 'out_connection_1', PROPER_ARGS)
+        to_send('out_connection_1', PROPER_ARGS)
 
 
 def test_service_utils__setup_to_send__to_send_returns_proper_args():
@@ -310,31 +238,12 @@ def test_service_utils__setup_to_send__to_send_returns_proper_args():
     cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
     addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
     connections = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    to_send = service_utils.setup_to_send(states, connections, {})
+    to_send = service_utils.setup_to_send(connections, {})
 
     connections['out']['out_connection_1'].send = lambda payload: RETURN_PAYLOAD
-    return_arguments = to_send('connection', 'out_connection_1', PROPER_ARGS)
+    return_arguments = to_send('out_connection_1', PROPER_ARGS)
 
     assert return_arguments == RETURN_PAYLOAD['return_args']
-
-
-def test_service_utils__run_main__connection_in_will_error():
-    """
-    Explicitly state that inbound connections will not function
-    if using the main_mode of the service framework.
-    """
-    cur_addresses = utils.get_json_from_rel_path(ADDRESSES_PATH)
-    imported_service = utils.import_python_file_from_cwd(SERVICE_PATH)
-
-    config = {}
-    addresses = service_utils.setup_addresses(cur_addresses, imported_service, config)
-    conns = service_utils.setup_service_connections(addresses, imported_service, config)
-    states = service_utils.setup_service_states(addresses, imported_service, config)
-    main_func = lambda to_send, config: True
-
-    with pytest.raises(ValueError):
-        service_utils.run_main(config, conns, states, main_func, {})
 
 
 def test_service_utils__run_init_function__init_function_runs_properly():
@@ -408,21 +317,17 @@ REQUESTER_PATH = f'{BASE_DATA_DIR}/run_init_function/requester_service.py'
 REQUESTER_LOG_PATH = f'{BASE_LOG_DIR}/run_init_function/requester_service.log'
 
 REPLYER_ADDRS = {
-    "connections": {
-        "in": {
-            "reply": {
-                "replyer": "127.0.0.1:12222"
-            }
+    "in": {
+        "reply": {
+            "replyer": "127.0.0.1:12222"
         }
     }
 }
 
 REQUESTER_ADDRS = {
-    "connections": {
-        "out": {
-            "request": {
-                "requester": "127.0.0.1:12222"
-            }
+    "out": {
+        "request": {
+            "requester": "127.0.0.1:12222"
         }
     }
 }

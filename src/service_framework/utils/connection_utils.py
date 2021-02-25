@@ -100,20 +100,17 @@ def setup_connections(connection_models, addresses):
         },
     }
     addressess = {
-        'connections': {
-            'in': {
-                'connection_name': {
-                    'socket_name_1': '127.0.0.1:5001',
-                    'socket_name_2': '127.0.0.1:5002',
-                },
-            },
-            'out': {
-                'connection_name': {
-                    'socket_name_1': '256.24.52.1:9000',
-                },
+        'in': {
+            'connection_name': {
+                'socket_name_1': '127.0.0.1:5001',
+                'socket_name_2': '127.0.0.1:5002',
             },
         },
-        'states': {},
+        'out': {
+            'connection_name': {
+                'socket_name_1': '256.24.52.1:9000',
+            },
+        },
     }
     return = {
         'in': {
@@ -139,12 +136,11 @@ def setup_connections(connection_models, addresses):
         for model_name, model in connection_models[side].items():
             LOG.debug('Creation Conn for Modelname "%s" of Side "%s"', model_name, side)
 
-            connection_addresses = addresses.get('connections', {})
-            side_addresses = connection_addresses.get(side, {})
+            side_addresses = addresses.get(side, {})
             model_addresses = side_addresses.get(model_name, {})
 
             if not model_addresses:
-                LOG.warning('[connections][%s][%s] NOT IN ADDRESSES FILE!', side, model_name)
+                LOG.warning('[%s][%s] NOT IN ADDRESSES FILE!', side, model_name)
 
             conns[side][model_name] = get_connection(
                 model,
@@ -277,7 +273,8 @@ class BaseConnection(ABC):
             'inbound_socket': zmq.Context.Socket,
             'decode_message': def(bytes) -> payload,
             'arg_validator': def(args),
-            'connection_function': def(args, to_send, states, config) -> return_args or None,
+            'model_function': def(args, to_send, config) -> return_args or None,
+            'connection_function': def(args, to_send, config) -> return_args or None,
             'return_validator': def(return_args)
             'return_function': def(return_args),
         }]

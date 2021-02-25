@@ -62,7 +62,7 @@ class Subscriber(BaseConnection):
     def get_connection_arguments_model():
         """
         This is needed so the BaseConnection can validate the provided
-        model explicitly states the arguments to be passed on each
+        model explicitly state the arguments to be passed on each
         send message.
         return = {
             'required_connection_arguments': {
@@ -107,7 +107,7 @@ class Subscriber(BaseConnection):
         """
         return {
             'required_creation_arguments': {
-                'on_new_message': lambda args, to_send, states, config: True,
+                'on_new_message': lambda args, to_send, config: True,
             },
             'optional_creation_arguments': {
                 'is_binder': bool,
@@ -125,7 +125,7 @@ class Subscriber(BaseConnection):
             'args_validator': def(args),
 
             'connection_function': def(args) -> args or None,
-            'model_function': def(args, to_send, states, conifg) -> return_args or None,
+            'model_function': def(args, to_send, conifg) -> return_args or None,
             'return_validator': def(return_args)
             'return_function': def(return_args),
         }]

@@ -22,11 +22,7 @@ def main(to_send, config):
         payload = {'to_echo': 'Hello World - ' + str(num)}
 
         LOG.info('Sending payload: %s', payload)
-        returned = to_send(
-            'connection',
-            'request',
-            payload
-        )
+        returned = to_send('request', payload)
 
         LOG.info('Got Response: %s', returned)
 

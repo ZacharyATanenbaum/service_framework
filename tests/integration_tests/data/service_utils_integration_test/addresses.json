@@ -1,26 +1,12 @@
 {
-  "connections": {
-    "in": {
-      "in_connection_1": {
-        "replyer": "127.0.0.1:5011"
-      }
-    },
-    "out": {
-      "out_connection_1": {
-        "requester": "127.0.0.1:5011"
-      }
-    } 
+  "in": {
+    "in_connection_1": {
+      "replyer": "127.0.0.1:5011"
+    }
   },
-  "states": {
-     "in": {
-      "in_state_1": {
-        "subscriber": "127.0.0.1:7011"
-      }
-    },
-    "out": {
-      "out_state_1": {
-        "publisher": "127.0.0.1:7011"
-      }
-    } 
-  }
+  "out": {
+    "out_connection_1": {
+      "requester": "127.0.0.1:5011"
+    }
+  } 
 }

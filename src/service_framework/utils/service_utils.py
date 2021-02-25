@@ -8,7 +8,6 @@ from service_framework.utils import (
     connection_utils,
     logging_utils,
     socket_utils,
-    state_utils,
     utils,
     validation_utils
 )
@@ -27,15 +26,12 @@ def entrance_point(
     """
     service_path::obj Either a string -> to then import the service file or an object itself.
     addresses = {
-        'connections' {
-            'in': {
-                'connection_name': {
-                    'socket_name': str
-                },
+        'in': {
+            'connection_name': {
+                'socket_name': str
             },
-            'out': {},
         },
-        'states': {}
+        'out': {},
     }
     config = {
         'config_1': 'thingy',
@@ -56,23 +52,20 @@ def entrance_point(
     config = setup_config(config if config is not None else {}, service_definition)
     addresses = setup_addresses(addresses, service_definition, config)
     connections = setup_service_connections(addresses, service_definition, config)
-    states = setup_service_states(addresses, service_definition, config)
 
     setup_sig_handler_funcs(
         service_definition,
         config,
         connections,
-        states,
         logger_args_dict
     )
 
-    run_init_function(service_definition, connections, states, config, logger_args_dict)
+    run_init_function(service_definition, connections, config, logger_args_dict)
 
     if is_main:
         run_main(
             service_definition.main,
             connections,
-            states,
             config,
             logger_args_dict,
             min_wait_time_s
@@ -80,7 +73,6 @@ def entrance_point(
     else:
         run_service(
             connections,
-            states,
             config,
             logger_args_dict,
             min_wait_time_s
@@ -94,7 +86,7 @@ def get_all_new_payloads(polling_list, poller):
         'decode_message': def(bytes) -> payload,
         'args_validator': def(args),
         'connection_function': def(args) -> args or None,
-        'model_function': def(args, to_send, states, conifg) -> return_args or None,
+        'model_function': def(args, to_send, conifg) -> return_args or None,
         'return_validator': def(return_args)
         'return_function': def(return_args),
     }]
@@ -122,34 +114,7 @@ def get_all_new_payloads(polling_list, poller):
     return payloads
 
 
-def get_current_states(states):
-    """
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
-        },
-    }
-    return = {
-        'in': {
-           'in_state_name': {},
-        },
-        'out': {
-           'out_state_name': {},
-        },
-    }
-    """
-    if 'in' in states:
-        return {
-            state_name: state.get_state()
-            for state_name, state in states['in'].items()
-        }
-    return {}
-
-
-def get_polling_list(connections, states):
+def get_polling_list(connections):
     """
     connections = {
         'in': {
@@ -159,25 +124,17 @@ def get_polling_list(connections, states):
             'connection_name': BaseConnector(),
         },
     }
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
-        },
-    }
     return::[{
         'inbound_socket': zmq.Context.Socket,
         'decode_message': def(bytes) -> payload,
         'args_validator': def(args),
         'connection_function': def(args) -> args or None,
-        'model_function': def(args, to_send, states, conifg) -> return_args or None,
+        'model_function': def(args, to_send, conifg) -> return_args or None,
         'return_validator': def(return_args)
         'return_function': def(return_args),
     }]
     """
-    LOG.debug('Getting all sockets and function from states and connections.')
+    LOG.debug('Getting all sockets and function from connections.')
     polling_list = []
 
     for side in ('in', 'out'):
@@ -188,16 +145,11 @@ def get_polling_list(connections, states):
                 LOG.debug('Getting all sockets and function from %s', connection_name)
                 polling_list += connection.get_inbound_sockets_and_triggered_functions()
 
-        if side in states:
-            for state_name, state in states[side].items():
-                LOG.debug('Getting all sockets and functions from %s', state_name)
-                polling_list += state.get_inbound_sockets_and_triggered_functions()
-
     LOG.debug('Got %s sockets and functions!', len(polling_list))
     return polling_list
 
 
-def run_init_function(imported_service, connections, states, config, logger_args_dict):
+def run_init_function(imported_service, connections, config, logger_args_dict):
     """
     imported_service::module The imported service python file
     connections = {
@@ -206,14 +158,6 @@ def run_init_function(imported_service, connections, states, config, logger_args
         }
         'out': {
             'connection_name': BaseOutConnector(),
-        },
-    }
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
         },
     }
     config = {
@@ -228,7 +172,6 @@ def run_init_function(imported_service, connections, states, config, logger_args
     }
     """
     to_send = setup_to_send(
-        states,
         connections,
         logger_args_dict,
         workflow_id=None,
@@ -237,12 +180,12 @@ def run_init_function(imported_service, connections, states, config, logger_args
 
     if hasattr(imported_service, 'init_function'):
         LOG.debug('Found "init_function" in service, Calling now...')
-        imported_service.init_function(to_send, states, config)
+        imported_service.init_function(to_send, config)
     else:
         LOG.warning('Could not find "init_function" in service. Skipping...')
 
 
-def run_main(main_func, connections, states, config, logger_args_dict, min_wait_time_s=0):
+def run_main(main_func, connections, config, logger_args_dict, min_wait_time_s=0):
     """
     This is used to run a program that will be on the leading edge of a
     Python Service Framework graph or a program that will not respond to
@@ -256,14 +199,6 @@ def run_main(main_func, connections, states, config, logger_args_dict, min_wait_
             'connection_name': BaseConnector(),
         },
     }
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
-        },
-    }
     main_func::def(to_send, config, LOG)
     logger_args_dict = {
         console_loglevel: str,
@@ -272,11 +207,7 @@ def run_main(main_func, connections, states, config, logger_args_dict, min_wait_
         backup_count: int,
     }
     """
-    if 'in' in states and states['in']:
-        raise ValueError('In states do not work in main_mode. Please remove.')
-
     to_send = setup_to_send(
-        states,
         connections,
         logger_args_dict,
         workflow_id=None,
@@ -295,7 +226,6 @@ def run_main(main_func, connections, states, config, logger_args_dict, min_wait_
         target=run_service,
         args=(
             connections,
-            states,
             config,
             logger_args_dict,
             min_wait_time_s
@@ -309,7 +239,7 @@ def run_main(main_func, connections, states, config, logger_args_dict, min_wait_
     RUN_FLAG = False # Not needed, but makes tests run much faster
 
 
-def run_service(connections, states, config, logger_args_dict, min_wait_time_s=0):
+def run_service(connections, config, logger_args_dict, min_wait_time_s=0):
     """
     connections = {
         'in': {
@@ -317,14 +247,6 @@ def run_service(connections, states, config, logger_args_dict, min_wait_time_s=0
         }
         'out': {
             'connection_name': BaseOutConnector(),
-        },
-    }
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
         },
     }
     config = {
@@ -339,7 +261,7 @@ def run_service(connections, states, config, logger_args_dict, min_wait_time_s=0
     }
     """
     LOG.debug('Extracting Sockets to Poll...')
-    polling_list = get_polling_list(connections, states)
+    polling_list = get_polling_list(connections)
     sockets = [item['inbound_socket'] for item in polling_list]
     poller = socket_utils.get_poller_socket(sockets)
 
@@ -374,14 +296,12 @@ def run_service(connections, states, config, logger_args_dict, min_wait_time_s=0
 
             LOG.debug('Running Connection/State Function (if applicable)')
             post_func = current_polled.get('connection_function', None)
-            post_func = current_polled.get('state_function', post_func)
             args = args if post_func is None else post_func(args)
             LOG.debug('Finished Running Connection/State Function args: %s', args)
 
             return_args = args
             if current_polled.get('model_function', None):
                 to_send = setup_to_send(
-                    states,
                     connections,
                     logger_args_dict,
                     workflow_id=workflow_id,
@@ -391,7 +311,6 @@ def run_service(connections, states, config, logger_args_dict, min_wait_time_s=0
                 return_args = current_polled['model_function'](
                     args,
                     to_send,
-                    get_current_states(states),
                     config
                 )
 
@@ -413,20 +332,17 @@ def setup_addresses(addresses, imported_service, config):
     addrs_path::str Relative import path to the addresses file
     imported_service::module The imported service python file
     return = {
-        'connections': {
-            'in': {
-                'connection_name': {
-                    'socket_name_1': '127.0.0.1:5001',
-                    'socket_name_2': '127.0.0.1:5002',
-                },
-            },
-            'out': {
-                'connection_name': {
-                    'socket_name_1': '256.24.52.1:9000',
-                },
+        'in': {
+            'connection_name': {
+                'socket_name_1': '127.0.0.1:5001',
+                'socket_name_2': '127.0.0.1:5002',
             },
         },
-        'states': {},
+        'out': {
+            'connection_name': {
+                'socket_name_1': '256.24.52.1:9000',
+            },
+        },
     }
     config = {
         'config_key_1': 'config_val_1'
@@ -486,20 +402,17 @@ def setup_config(config, imported_service):
 def setup_service_connections(addresses, imported_service, config):
     """
     addresses = {
-        'connections': {
-            'in': {
-                'connection_name': {
-                    'socket_name_1': '127.0.0.1:5001',
-                    'socket_name_2': '127.0.0.1:5002',
-                },
-            },
-            'out': {
-                'connection_name': {
-                    'socket_name_1': '256.24.52.1:9000',
-                },
+        'in': {
+            'connection_name': {
+                'socket_name_1': '127.0.0.1:5001',
+                'socket_name_2': '127.0.0.1:5002',
             },
         },
-        'states': {},
+        'out': {
+            'connection_name': {
+                'socket_name_1': '256.24.52.1:9000',
+            },
+        },
     }
     imported_service::module The imported service python file
     config = {
@@ -539,17 +452,9 @@ def setup_service_connections(addresses, imported_service, config):
     )
 
 
-def setup_to_send(states, connections, logger_args_dict, workflow_id=None, increment_id=True):
+def setup_to_send(connections, logger_args_dict, workflow_id=None, increment_id=True):
     """
     Setup the function that the service will call to make external calls.
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
-        },
-    },
     connections = {
         'in': {
             'connection_name': BaseConnector(),
@@ -566,21 +471,12 @@ def setup_to_send(states, connections, logger_args_dict, workflow_id=None, incre
     }
     workflow_id::str
     increment_id::bool
-    return def(output_type, output_name, args)
+    return def(connection_name, args)
     """
     local_state = {
         'num_calls': 0,
         'workflow_id': uuid.uuid4() if not workflow_id and increment_id else workflow_id,
     }
-
-    def get_output(output_type, output_name):
-        """
-        output_type::set('state', 'connection')
-        output_name::str Either the state or connections name
-        return StateObject or ConnectionObject
-        """
-        outputs = connections if output_type == 'connection' else states
-        return outputs['out'][output_name]
 
     def get_current_workflow_id():
         """
@@ -613,7 +509,7 @@ def setup_to_send(states, connections, logger_args_dict, workflow_id=None, incre
 
     def parse_out_response(response):
         """
-        Method to set state parse response after sending the payload.
+        Method to set response after sending the payload.
         response::{}
         return::{}
         """
@@ -621,32 +517,25 @@ def setup_to_send(states, connections, logger_args_dict, workflow_id=None, incre
             return {}
         return response.get('return_args')
 
-    def to_send(output_type, output_name, args):
+    def to_send(connection_name, args):
         """
         Used to wrap external service calls for testing/documentation/readability.
         Needs to be a function so when it's passed to the model function the
         end user can simply call this function. Without having to do additional
         instantiations.
-        output_type::set('state', 'connection')
-        output_name::str Either the state or connections name
-        args::{} Arguments to pass to the state/connectionn
+        connection_name::str Either the connections name
+        args::{} Arguments to pass to the connectionn
         """
         cur_workflow_id = get_current_workflow_id()
         logging_utils.set_new_workflow_id_on_logger(cur_workflow_id, logger_args_dict)
 
         LOG.debug(
-            'Sending to output_type %s output_name %s args %s',
-            output_type,
-            output_name,
+            'Sending to connection_name "%s" args "%s"',
+            connection_name,
             args
         )
 
-        if output_type not in ('state', 'connection'):
-            error = 'Output type for to_send must be "state" or "connection"!'
-            LOG.error(error)
-            raise ValueError(error)
-
-        output_to = get_output(output_type, output_name)
+        output_to = connections['out'][connection_name]
 
         LOG.debug('Checking args to send')
         output_to.args_validator(args)
@@ -671,57 +560,7 @@ def setup_to_send(states, connections, logger_args_dict, workflow_id=None, incre
     return to_send
 
 
-def setup_service_states(addresses, imported_service, config):
-    """
-    addresses = {
-        'connections': {
-            'in': {
-                'connection_name': {
-                    'socket_name_1': '127.0.0.1:5001',
-                    'socket_name_2': '127.0.0.1:5002',
-                },
-            },
-            'out': {
-                'connection_name': {
-                    'socket_name_1': '256.24.52.1:9000',
-                },
-            },
-        },
-        'states': {},
-    }
-    imported_service::module The imported service python file
-    return = {
-        'in': {
-            'state_name': BaseInState(),
-        },
-        'out': {
-            'state_name': BaseOutState(),
-        },
-    }
-    config = {
-        'config_key_1': 'config_val_1',
-    }
-    """
-    if not hasattr(imported_service, 'state_models'):
-        LOG.warning('No "state_model" in Service File. Skipping state setup...')
-        return {}
-
-    LOG.debug('Found "state_models", Setting up States...')
-    state_models = imported_service.state_models
-
-    if hasattr(imported_service, 'setup_state_models'):
-        LOG.debug('Found "setup_state_models", Calling now...')
-        state_models = imported_service.setup_state_models(state_models, config)
-
-        if not isinstance(state_models, dict):
-            err = 'setup_state_models function must return a dict of state models!'
-            LOG.error(err)
-            raise ValueError(err)
-
-    return state_utils.setup_states(state_models, addresses)
-
-
-def setup_sig_handler_funcs(imported_service, config, connections, states, logger_args_dict):
+def setup_sig_handler_funcs(imported_service, config, connections, logger_args_dict):
     """
     This function is used to setup a custom sigint and sigterm handler provided from
     the imported service.
@@ -735,14 +574,6 @@ def setup_sig_handler_funcs(imported_service, config, connections, states, logge
             'connection_name': BaseConnector(),
         },
     }
-    states = {
-        'in': {
-            'state_name': BaseState(),
-        },
-        'out': {
-            'state_name': BaseState(),
-        },
-    }
     logger_args_dict = {
         console_loglevel: str,
         log_folder: None,
@@ -751,7 +582,6 @@ def setup_sig_handler_funcs(imported_service, config, connections, states, logge
     }
     """
     to_send = setup_to_send(
-        states,
         connections,
         logger_args_dict
     )
@@ -763,7 +593,6 @@ def setup_sig_handler_funcs(imported_service, config, connections, states, logge
                 sigint,
                 frame,
                 to_send,
-                get_current_states(states),
                 config
             )
         utils.add_sig_handler(custom_sigint_handler, is_sigint=True)
@@ -775,7 +604,6 @@ def setup_sig_handler_funcs(imported_service, config, connections, states, logge
                 signum,
                 frame,
                 to_send,
-                get_current_states(states),
                 config
             )
         utils.add_sig_handler(custom_sigterm_handler, is_sigint=False)

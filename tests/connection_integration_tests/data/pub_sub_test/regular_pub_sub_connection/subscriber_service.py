@@ -4,11 +4,10 @@ from logging import getLogger
 from service_framework.utils.logging_utils import get_logger
 
 LOG = get_logger()
-# Yes this should probably be a state... but I haven't created that one yet!
 SENT_INTEGERS = []
 
 
-def on_new_message(args, to_send, states, config):
+def on_new_message(args, to_send, config):
     """
     Method triggered when a new publisher message is recieved.
     """
@@ -16,7 +15,7 @@ def on_new_message(args, to_send, states, config):
     SENT_INTEGERS.append(args['message_int'])
 
 
-def on_new_request(args, to_send, states, config):
+def on_new_request(args, to_send, config):
     """
     Method triggered when a new request is recieved from
     a requester.

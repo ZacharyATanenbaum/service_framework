@@ -202,24 +202,6 @@ def test_connection_utils__base_connection__has_get_addresses_model_abstract_met
     assert getattr(get_addresses_model, '__isabstractmethod__')
 
 
-def test_connection_utils__base_connection__has_get_compatable_connection_types_abstract_method():
-    """
-    Make sure the BaseConnection class has the abstract method of
-    "get_compatable_connection_types" that's needed for the framework.
-    """
-    func_to_check = connection_utils.BaseConnection.get_compatable_connection_types
-    assert getattr(func_to_check, '__isabstractmethod__')
-
-
-def test_connection_utils__base_connection__has_get_connection_type_abstract_method():
-    """
-    Make sure the BaseConnection class has the abstract method of
-    "get_connection_type" that's needed for the framework.
-    """
-    func_to_check = connection_utils.BaseConnection.get_connection_type
-    assert getattr(func_to_check, '__isabstractmethod__')
-
-
 def test_connection_utils__base_connection__has_get_creation_arguments_model_abstract_method():
     """
     Make sure the BaseConnection class has the abstract method of

@@ -1,9 +1,7 @@
 {
-  "connections": {
-    "out": {
-      "request": {
-        "requester": "127.0.0.1:12222"
-      }
+  "out": {
+    "request": {
+      "requester": "127.0.0.1:12222"
     }
   }
 }

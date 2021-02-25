@@ -1,0 +1,10 @@
+{
+  "in": {
+    "subscribe_int":{
+      "subscriber": "127.0.0.1:9998"
+    },
+    "reply_sent_message_ints": {
+      "replyer": "127.0.0.1:9999"
+    }
+  }
+}

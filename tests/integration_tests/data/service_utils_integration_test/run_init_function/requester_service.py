@@ -14,7 +14,7 @@ def setup_config(config):
     return config
 
 
-def init_function(to_send, states, config):
+def init_function(to_send, config):
     """
     Call this function prior to starting the service
     """
@@ -24,11 +24,7 @@ def init_function(to_send, states, config):
         payload = {'to_echo': 'Hello World - ' + str(num)}
 
         LOG.info('Sending payload: %s', payload)
-        returned = to_send(
-            'connection',
-            'request',
-            payload
-        )
+        returned = to_send('request', payload)
 
         LOG.info('Got Response: %s', returned)
 

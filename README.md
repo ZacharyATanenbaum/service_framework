@@ -108,18 +108,16 @@ Example:
 
 # Addresses.json
 {
-  "connections": {
-    "in": {
-      "connection_name": {
-        "socket_name": "127.0.0.1:8001",
-        "socket_name_2: "127.0.0.1:8002"
-      },
-      "connection_name_2": {
-        "socket_name": "256.128.65.1:9000"
-      },
+  "in": {
+    "connection_name": {
+      "socket_name": "127.0.0.1:8001",
+      "socket_name_2: "127.0.0.1:8002"
     },
-    "out": {}
-  }
+    "connection_name_2": {
+      "socket_name": "256.128.65.1:9000"
+    },
+  },
+  "out": {}
 }
 ```
 

@@ -5,7 +5,7 @@ from service_framework import get_logger
 LOG = get_logger()
 
 
-def on_new_request(args, to_send, states, config):
+def on_new_request(args, to_send, config):
     """
     Method triggered when a new request is recieved from
     a requester.

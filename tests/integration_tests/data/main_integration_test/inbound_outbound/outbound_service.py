@@ -14,11 +14,7 @@ def main(to_send, config):
     payload = {'convert_this': target_number}
 
     LOG.info('Sending payload: %s', payload)
-    returned = to_send(
-        'connection',
-        'request',
-        payload
-    )
+    returned = to_send('request', payload)
     LOG.info('Got converted number: %s', returned['converted'])
 
 
