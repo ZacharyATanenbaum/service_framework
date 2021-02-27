@@ -125,5 +125,7 @@ class InlineServices:
         if service_name in self.services:
             raise ValueError('Service named "{service_name}" already exists! Choose a new name')
 
+        # TODO: Call setup of sigint and sigterm handlers
+
         self.services[service_name] = service_module
         self.configs[service_name] = config

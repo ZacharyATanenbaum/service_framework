@@ -81,6 +81,16 @@ def test_inline_services__adding_relation_with_improper_in_service_name_throws_e
     """
 
 
+def test_setup_service__validate_setup_service_sets_up_sigint_handler():
+    """
+    """
+
+
+def test_setup_service__validate_setup_service_sets_up_sigterm_handler():
+    """
+    """
+
+
 BASE_DIR = './tests/unit_tests/data/inline_service_integration_test'
 
 DO_NOTHING_PATH = f'{BASE_DIR}/do_nothing_service.py'
