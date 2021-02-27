@@ -10,7 +10,7 @@ def setup_config(config):
     Make config arguments the proper type!
     """
     LOG.info('Setting up config!')
-    config['num_req_to_send'] = int(config['num_req_to_send'])
+    config['num_req_to_send'] = int(config.get('num_req_to_send', 2))
     return config
 
 
@@ -22,12 +22,7 @@ def main(to_send, config):
         payload = {'to_echo': 'Hello World - ' + str(num)}
 
         LOG.info('Sending payload: %s', payload)
-        returned = to_send(
-            'connection',
-            'request',
-            payload
-        )
-
+        returned = to_send('request', payload)
         LOG.info('Got Response: %s', returned)
 
     LOG.info('GOT ALL RESPONSES')

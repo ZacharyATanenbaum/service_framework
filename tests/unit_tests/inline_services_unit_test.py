@@ -12,7 +12,7 @@ def test_inline_services__services_can_be_run_with_paths():
     # TODO: Finish this file
     inline = InlineServices()
     inline.set_main_service('requester', REQUESTER_PATH)
-    inline.add_service('replyer', REPLYER_PATH)
+    inline.add_service('replyer', REPLYER_PATH, REQUESTER_CONFIG)
     inline.add_relation('requester', 'request', 'replyer', 'reply')
     inline.start()
 
@@ -31,17 +31,42 @@ def test_inline_services__can_have_multiple_dependent_services():
     """
 
 
-def test_inline_services__adding_second_service_with_same_name_errors():
+def test_inline_services__service_calls_multiple_relations():
     """
     """
 
 
-def test_inline_services__adding_second_main_service_throws_error():
+def test_add_service__adding_service_with_same_name_errors():
     """
     """
 
 
-def test_inline_services__starting_without_main_service_throws_error():
+def test_add_service_as_module__adding_service_with_same_name_errors():
+    """
+    """
+
+
+def test_set_main_service__setting_service_with_same_name_errors():
+    """
+    """
+
+
+def test_set_main_service_as_module__setting_service_with_same_name_errors():
+    """
+    """
+
+
+def test_set_main_service__adding_second_main_service_throws_error():
+    """
+    """
+
+
+def test_set_main_service_as_module__adding_second_main_service_throws_error():
+    """
+    """
+
+
+def test_start__starting_without_main_service_throws_error():
     """
     """
 
