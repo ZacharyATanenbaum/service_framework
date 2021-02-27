@@ -56,11 +56,11 @@ def test_inline_services__adding_relation_with_improper_in_service_name_throws_e
     """
 
 
-BASE_DIR = './tests/unit_tests'
+BASE_DIR = './tests/unit_tests/data/inline_service_integration_test'
 
-DO_NOTHING_PATH = f'{BASE_DIR}/data/service_integration_test/do_nothing_service.py'
-REPLYER_PATH = f'{BASE_DIR}/data/service_integration_test/replyer_service.py'
-REQUESTER_PATH = f'{BASE_DIR}/data/service_integration_test/requester_service.py'
+DO_NOTHING_PATH = f'{BASE_DIR}/do_nothing_service.py'
+REPLYER_PATH = f'{BASE_DIR}/replyer_service.py'
+REQUESTER_PATH = f'{BASE_DIR}/requester_service.py'
 
 REQUESTER_CONFIG = {
     'num_req_to_send': 2
