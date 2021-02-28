@@ -53,11 +53,11 @@ def entrance_point(
     addresses = setup_addresses(addresses, service_definition, config)
     connections = setup_service_connections(addresses, service_definition, config)
 
+
     setup_sig_handler_funcs(
         service_definition,
         config,
-        connections,
-        logger_args_dict
+        setup_to_send(connections, logger_args_dict)
     )
 
     run_init_function(service_definition, connections, config, logger_args_dict)
@@ -560,32 +560,14 @@ def setup_to_send(connections, logger_args_dict, workflow_id=None, increment_id=
     return to_send
 
 
-def setup_sig_handler_funcs(imported_service, config, connections, logger_args_dict):
+def setup_sig_handler_funcs(imported_service, config, to_send):
     """
     This function is used to setup a custom sigint and sigterm handler provided from
     the imported service.
     imported_service::module The imported service python file
     config = {'config_arg_1': 'config_value_1', ...}
-    connections = {
-        'in': {
-            'connection_name': BaseConnector(),
-        },
-        'out': {
-            'connection_name': BaseConnector(),
-        },
-    }
-    logger_args_dict = {
-        console_loglevel: str,
-        log_folder: None,
-        file_loglevel: str,
-        backup_count: int,
-    }
+    to_send::lambda(connection_name, args) The to_send function to call other services
     """
-    to_send = setup_to_send(
-        connections,
-        logger_args_dict
-    )
-
     if hasattr(imported_service, 'sigint_handler'):
         LOG.debug('Found "sigint_handler! Setting up now...')
         def custom_sigint_handler(sigint, frame):

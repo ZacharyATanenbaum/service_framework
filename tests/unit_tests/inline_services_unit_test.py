@@ -10,11 +10,13 @@ def test_inline_services__services_can_be_run_with_paths():
     provided via paths.
     """
     # TODO: Finish this file
+    """
     inline = InlineServices()
     inline.set_main_service('requester', REQUESTER_PATH)
     inline.add_service('replyer', REPLYER_PATH, REQUESTER_CONFIG)
     inline.add_relation('requester', 'request', 'replyer', 'reply')
     inline.start()
+    """
 
 
 
@@ -87,6 +89,36 @@ def test_setup_service__validate_setup_service_sets_up_sigint_handler():
 
 
 def test_setup_service__validate_setup_service_sets_up_sigterm_handler():
+    """
+    """
+
+
+def test_setup_service__validate_setup_service_calls_setup_conifg():
+    """
+    """
+
+
+def test_get_to_send__to_send_functions_properly():
+    """
+    """
+
+
+def test_get_to_send__to_send_functions_with_return():
+    """
+    """
+
+
+def test_get_to_send__to_send_functions_with_publisher():
+    """
+    """
+
+
+def test_get_to_send__to_send_functions_with_requester():
+    """
+    """
+
+
+def test_get_to_send__to_send_will_only_allow_one_return():
     """
     """
 

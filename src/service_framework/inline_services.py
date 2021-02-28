@@ -1,6 +1,10 @@
 """ File to house the inline services class """
 
+from service_framework.utils.logging_utils import get_logger
+from service_framework.utils.service_utils import setup_sig_handler_funcs
 from service_framework.utils.utils import import_python_file_from_cwd
+
+LOG = get_logger()
 
 
 class InlineServices:
@@ -30,7 +34,7 @@ class InlineServices:
             'backup_count': backup_count
         }
         self.configs = {}
-        self.main_service = None
+        self.main_service_name = None
         self.services = {}
         self.relations = {}
 
@@ -78,7 +82,13 @@ class InlineServices:
         """
         Start the inline service
         """
-        # TODO
+        if self.main_service_name is None:
+            raise ValueError('Main service not set! Please call "set_main_service"')
+
+        self.services[self.main_service_name].main(
+            self._get_to_send(self.main_service_name),
+            self.configs[self.main_service_name]
+        )
 
     def set_main_service(self, service_name, rel_service_path, config=None):
         """
@@ -102,9 +112,9 @@ class InlineServices:
         service_module::str The imported service file
         config::{} The service config passed to the service
         """
-        if self.main_service:
-            raise ValueError(f'Main Service Already Set as "{self.main_service}"!')
-        self.main_service = service_name
+        if self.main_service_name:
+            raise ValueError(f'Main Service Name already Set as "{self.main_service_name}"!')
+        self.main_service_name = service_name
         self._setup_service(service_name, service_module, config)
 
     @staticmethod
@@ -125,7 +135,54 @@ class InlineServices:
         if service_name in self.services:
             raise ValueError('Service named "{service_name}" already exists! Choose a new name')
 
-        # TODO: Call setup of sigint and sigterm handlers
+        config = (
+            config if not service_module.get('setup_config')
+            else service_module.get('setup_config')(config)
+        )
+
+        setup_sig_handler_funcs(
+            service_module,
+            config,
+            self._get_to_send(service_name)
+        )
 
         self.services[service_name] = service_module
         self.configs[service_name] = config
+
+    def _get_to_send(self, service_name):
+        """
+        Setup the "to_send" function for a specific service name.
+        service_name::str
+        return::lambda(connection_name, args)
+        """
+        def to_send(connection_name, args):
+            """
+            Start calling the downstream services
+            connection_name::str
+            args::{}
+            """
+            key = self._get_relation_key(service_name, connection_name)
+
+            to_returns = []
+            for new_service_name, new_conn_name in self.relations[key]:
+                new_service = self.services[new_service_name]
+                new_conn = new_service.connection_models['in'][new_conn_name]
+                new_func = new_conn['required_creation_arguments']['on_new_request']
+
+                to_return = new_func(
+                    args,
+                    self._get_to_send(new_service_name),
+                    self.configs[service_name]
+                )
+
+                if to_return:
+                    to_returns.append(to_return)
+
+            if len(to_returns) > 1:
+                raise RuntimeError('Too many Returns from "to_return"! Can only have 1!')
+
+            if len(to_returns) == 1:
+                return to_returns[0]
+            return None
+
+        return to_send
