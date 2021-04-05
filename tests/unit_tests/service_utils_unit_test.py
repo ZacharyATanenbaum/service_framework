@@ -5,12 +5,16 @@ from service_framework.utils import service_utils, utils
 from testing_utils import remove_imported_object_module
 
 
-ADDRESSES_PATH = './tests/unit_tests/data/service_utils_unit_test/addresses.json'
-CONFIG_PATH = './tests/unit_tests/data/service_utils_unit_test/config.json'
-SERVICE_PATH = './tests/unit_tests/data/service_utils_unit_test/service.py'
-WO_SERVICE_PATH = './tests/unit_tests/data/service_utils_unit_test/wo_service.py'
+BASE_PATH = './tests/unit_tests/data/service_utils_unit_test'
+ADDRESSES_PATH = f'{BASE_PATH}/addresses.json'
+CONFIG_PATH = f'{BASE_PATH}/config.json'
+SERVICE_PATH = f'{BASE_PATH}/service.py'
+WO_SERVICE_PATH = f'{BASE_PATH}/wo_service.py'
 
-ENV_VARIABLES = ['env_variable_1', 'env_value_1', 'env_variable_2', 'env_value_2']
+ENV_VARIABLES = [
+    'env_variable_1', 'env_value_1',
+    'env_variable_2', 'env_value_2'
+]
 
 
 def test_service_utils__setup_addresses__no_addresses_path():

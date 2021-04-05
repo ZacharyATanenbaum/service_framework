@@ -62,6 +62,9 @@ class InlineServices:
         rel_service_path::str The relative path to the service from the cwd
         config::{} The service config passed to the service
         """
+        if not isinstance(rel_service_path, str):
+            raise ValueError('Please provided a string for the rel_service_path!')
+
         self.add_service_by_module(
             service_name,
             import_python_file_from_cwd(rel_service_path),
@@ -77,6 +80,22 @@ class InlineServices:
         config::{} The service config passed to the service
         """
         self._setup_service(service_name, service_module, config)
+
+    def get_service_config(self, service_name):
+        """
+        Get the config for the provided service
+        """
+        if service_name not in self.configs:
+            raise RuntimeError(f'Service name "{service_name}" is not a registered service!')
+        return self.configs[service_name]
+
+    def get_service_module(self, service_name):
+        """
+        Get the service module that's saved internally based on it's name.
+        """
+        if service_name not in self.services:
+            raise RuntimeError(f'Service name "{service_name}" is not a registered service!')
+        return self.services[service_name]
 
     def start(self):
         """
@@ -98,6 +117,9 @@ class InlineServices:
         rel_service_path::str The relative path to the service from the cwd
         config::{} The service config passed to the service
         """
+        if not isinstance(rel_service_path, str):
+            raise ValueError('Please provided a string for the rel_service_path!')
+
         self.set_main_service_by_module(
             service_name,
             import_python_file_from_cwd(rel_service_path),
@@ -135,9 +157,12 @@ class InlineServices:
         if service_name in self.services:
             raise ValueError('Service named "{service_name}" already exists! Choose a new name')
 
+        if config is None:
+            config = {}
+
         config = (
-            config if not service_module.get('setup_config')
-            else service_module.get('setup_config')(config)
+            config if not hasattr(service_module, 'setup_config')
+            else service_module.setup_config(config)
         )
 
         setup_sig_handler_funcs(
@@ -172,7 +197,7 @@ class InlineServices:
                 to_return = new_func(
                     args,
                     self._get_to_send(new_service_name),
-                    self.configs[service_name]
+                    self.configs[new_service_name]
                 )
 
                 if to_return:

@@ -11,6 +11,7 @@ def setup_config(config):
     """
     LOG.info('Setting up config!')
     config['num_req_to_send'] = int(config.get('num_req_to_send', 2))
+    config['responses_recieved'] = []
     return config
 
 
@@ -24,6 +25,7 @@ def main(to_send, config):
         LOG.info('Sending payload: %s', payload)
         returned = to_send('request', payload)
         LOG.info('Got Response: %s', returned)
+        config['responses_recieved'].append(returned)
 
     LOG.info('GOT ALL RESPONSES')
 
