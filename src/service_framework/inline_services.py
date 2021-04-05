@@ -49,6 +49,26 @@ class InlineServices:
         """
         key = self._get_relation_key(out_service_name, out_connection)
 
+        if out_service_name not in self.services:
+            raise ValueError(f'Out Service Name "{out_service_name}" has not been added!')
+
+        out_conn_models = getattr(self.services[out_service_name], 'connection_models')
+        if out_connection not in out_conn_models['out']:
+            raise ValueError(
+                f"Out Connection '{out_connection}' not in Service "
+                + "'{out_service_name}' connection_models ['out']!"
+            )
+
+        if in_service_name not in self.services:
+            raise ValueError(f'In Service Name "{in_service_name}" has not been added!')
+
+        in_conn_models = getattr(self.services[in_service_name], 'connection_models')
+        if in_connection not in in_conn_models['in']:
+            raise ValueError(
+                f"In Connection '{in_connection}' not in Service "
+                + "'{in_service_name}' connection_models ['in']!"
+            )
+
         if key in self.relations:
             self.relations[key] = (in_service_name, in_connection)
         else:
@@ -86,7 +106,7 @@ class InlineServices:
         Get the config for the provided service
         """
         if service_name not in self.configs:
-            raise RuntimeError(f'Service name "{service_name}" is not a registered service!')
+            raise ValueError(f'Service name "{service_name}" is not a registered service!')
         return self.configs[service_name]
 
     def get_service_module(self, service_name):
@@ -94,7 +114,7 @@ class InlineServices:
         Get the service module that's saved internally based on it's name.
         """
         if service_name not in self.services:
-            raise RuntimeError(f'Service name "{service_name}" is not a registered service!')
+            raise ValueError(f'Service name "{service_name}" is not a registered service!')
         return self.services[service_name]
 
     def start(self):

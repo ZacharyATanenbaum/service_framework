@@ -253,6 +253,11 @@ def test_start__starting_without_main_service_throws_error():
     """
     Attempting to start an inline service without a main service should throw an error.
     """
+    inline = InlineServices()
+    inline.add_service('replyer', REPLYER_PATH)
+
+    with pytest.raises(ValueError):
+        inline.start()
 
 
 def test_inline_services__adding_relation_with_improper_out_service_name_throws_error():
@@ -260,6 +265,12 @@ def test_inline_services__adding_relation_with_improper_out_service_name_throws_
     Adding a relation without an output service already added should throw
     an error.
     """
+    inline = InlineServices()
+    inline.set_main_service('requester', REQUESTER_PATH)
+    inline.add_service('replyer', REPLYER_PATH)
+
+    with pytest.raises(ValueError):
+        inline.add_relation('requester', 'request', 'DNE', 'reply')
 
 
 def test_inline_services__adding_relation_with_improper_in_service_name_throws_error():
@@ -267,6 +278,36 @@ def test_inline_services__adding_relation_with_improper_in_service_name_throws_e
     Adding a relation without an input service already added should throw
     an error.
     """
+    inline = InlineServices()
+    inline.set_main_service('requester', REQUESTER_PATH)
+    inline.add_service('replyer', REPLYER_PATH)
+
+    with pytest.raises(ValueError):
+        inline.add_relation('DNE', 'request', 'replyer', 'reply')
+
+
+def test_inline_services__adding_relation_with_improper_out_connection_name_throws_error():
+    """
+    Validate the out connection is within the out service.
+    """
+    inline = InlineServices()
+    inline.set_main_service('requester', REQUESTER_PATH)
+    inline.add_service('replyer', REPLYER_PATH)
+
+    with pytest.raises(ValueError):
+        inline.add_relation('requester', 'DNE', 'replyer', 'reply')
+
+
+def test_inline_services__adding_relation_with_improper_in_connection_name_throws_error():
+    """
+    Validate the in connection is within the in service.
+    """
+    inline = InlineServices()
+    inline.set_main_service('requester', REQUESTER_PATH)
+    inline.add_service('replyer', REPLYER_PATH)
+
+    with pytest.raises(ValueError):
+        inline.add_relation('requester', 'request', 'replyer', 'DNE')
 
 
 def test_setup_service__validate_setup_service_sets_up_sigint_handler():
@@ -293,24 +334,43 @@ def test_get_service_module__happy_case():
     """
     Self Explanitory...
     """
+    inline = InlineServices()
+    inline.set_main_service('requester', REQUESTER_PATH)
+    inline.add_service('replyer', REPLYER_PATH)
+
+    assert inline.get_service_module('requester')
+    assert inline.get_service_module('replyer')
 
 
 def test_get_service_module__service_name_dne_and_throws_error_case():
     """
     Self Explanitory...
     """
+    inline = InlineServices()
+
+    with pytest.raises(ValueError):
+        inline.get_service_module('requester')
 
 
 def test_get_service_config__happy_case():
     """
     Self Explanitory...
     """
+    inline = InlineServices()
+    inline.set_main_service('requester', REQUESTER_PATH)
+
+    config = inline.get_service_config('requester')
+    assert 'num_req_to_send' in config
 
 
 def test_get_service_config__service_name_dne_and_throws_error_case():
     """
     Self Explanitory...
     """
+    inline = InlineServices()
+
+    with pytest.raises(ValueError):
+        inline.get_service_config('requester')
 
 
 BASE_DIR = './tests/unit_tests/data/inline_service_integration_test'
