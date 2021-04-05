@@ -188,6 +188,9 @@ class InlineServices:
             """
             key = self._get_relation_key(service_name, connection_name)
 
+            if key not in self.relations:
+                raise ValueError('No relation with in_service_name, in_service_connection:', key)
+
             to_returns = []
             for new_service_name, new_conn_name in self.relations[key]:
                 new_service = self.services[new_service_name]

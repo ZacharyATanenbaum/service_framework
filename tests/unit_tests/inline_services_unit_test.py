@@ -148,12 +148,27 @@ def test_inline_services__service_calls_multiple_relations():
     """
     Make sure that one main service can call multiple dependent services.
     """
+    inline = InlineServices()
+    inline.set_main_service('multi_requester', MULTI_REQUESTER_PATH)
+    inline.add_service('replyer_1', REPLYER_PATH)
+    inline.add_relation('multi_requester', 'request_1', 'replyer_1', 'reply')
+    inline.add_service('replyer_2', REPLYER_PATH)
+    inline.add_relation('multi_requester', 'request_2', 'replyer_2', 'reply')
+    inline.start()
+
+    req_config = inline.get_service_config('multi_requester')
+    assert len(req_config['responses_recieved']) == 4
 
 
 def test_add_service__adding_service_with_same_name_errors():
     """
     Adding a server with the same name as another service should error.
     """
+    inline = InlineServices()
+    inline.add_service('replyer', REPLYER_PATH)
+
+    with pytest.raises(ValueError):
+        inline.add_service('replyer', REPLYER_PATH)
 
 
 def test_add_service_as_module__adding_service_with_same_name_errors():
@@ -161,12 +176,31 @@ def test_add_service_as_module__adding_service_with_same_name_errors():
     Adding a server, as module, with the same name as another service
     should error.
     """
+    inline = InlineServices()
+    inline.add_service_by_module(
+        'replyer',
+        import_python_file_from_cwd(REPLYER_PATH)
+    )
+
+    with pytest.raises(ValueError):
+        inline.add_service_by_module(
+            'replyer',
+            import_python_file_from_cwd(REPLYER_PATH)
+        )
 
 
 def test_set_main_service__setting_service_with_same_name_errors():
     """
     Adding a main service, with the same name as another service, should error.
     """
+    inline = InlineServices()
+    inline.set_main_service('multi_requester', MULTI_REQUESTER_PATH)
+
+    with pytest.raises(ValueError):
+        inline.set_main_service(
+            'multi_requester',
+            MULTI_REQUESTER_PATH
+        )
 
 
 def test_set_main_service_as_module__setting_service_with_same_name_errors():
@@ -174,6 +208,17 @@ def test_set_main_service_as_module__setting_service_with_same_name_errors():
     Adding a main service, as module, with the same name as another
     service should error.
     """
+    inline = InlineServices()
+    inline.set_main_service_by_module(
+        'multi_requester',
+        import_python_file_from_cwd(MULTI_REQUESTER_PATH)
+    )
+
+    with pytest.raises(ValueError):
+        inline.set_main_service_by_module(
+            'multi_requester',
+            import_python_file_from_cwd(MULTI_REQUESTER_PATH)
+        )
 
 
 def test_set_main_service__adding_second_main_service_throws_error():
@@ -257,6 +302,7 @@ BASE_DIR = './tests/unit_tests/data/inline_service_integration_test'
 DO_NOTHING_PATH = f'{BASE_DIR}/do_nothing_service.py'
 REPLYER_PATH = f'{BASE_DIR}/replyer_service.py'
 REQUESTER_PATH = f'{BASE_DIR}/requester_service.py'
+MULTI_REQUESTER_PATH = f'{BASE_DIR}/multi_requester_service.py'
 
 REQUESTER_CONFIG = {
     'num_req_to_send': 4
