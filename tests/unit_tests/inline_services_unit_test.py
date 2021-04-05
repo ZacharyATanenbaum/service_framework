@@ -20,6 +20,7 @@ def test_inline_services__services_can_be_run_with_paths():
     req_config = inline.get_service_config('requester')
     assert len(req_config['responses_recieved']) == 2
 
+
 def test_inline_services__services_by_path_can_have_provided_config():
     """
     Make sure that services, when run by path, can have a pre-existing
@@ -116,6 +117,7 @@ def test_inline_services__main_by_module_can_have_provided_config():
     req_config = inline.get_service_config('requester')
     assert len(req_config['responses_recieved']) == 4
 
+
 def test_inline_services__set_main_service_not_providing_a_string_path_throws_error():
     """
     Make sure that if setting a main service and accidentally passing a
@@ -127,6 +129,7 @@ def test_inline_services__set_main_service_not_providing_a_string_path_throws_er
             'requester',
             import_python_file_from_cwd(REQUESTER_PATH)
         )
+
 
 def test_inline_services__add_service_not_providing_a_string_path_throws_error():
     """
@@ -140,119 +143,112 @@ def test_inline_services__add_service_not_providing_a_string_path_throws_error()
             import_python_file_from_cwd(REPLYER_PATH),
         )
 
-def test_inline_services__can_have_multiple_dependent_services():
+
+def test_inline_services__service_calls_multiple_relations():
     """
     Make sure that one main service can call multiple dependent services.
     """
 
 
-def test_inline_services__service_calls_multiple_relations():
-    """
-    """
-
-
 def test_add_service__adding_service_with_same_name_errors():
     """
+    Adding a server with the same name as another service should error.
     """
 
 
 def test_add_service_as_module__adding_service_with_same_name_errors():
     """
+    Adding a server, as module, with the same name as another service
+    should error.
     """
 
 
 def test_set_main_service__setting_service_with_same_name_errors():
     """
+    Adding a main service, with the same name as another service, should error.
     """
 
 
 def test_set_main_service_as_module__setting_service_with_same_name_errors():
     """
+    Adding a main service, as module, with the same name as another
+    service should error.
     """
 
 
 def test_set_main_service__adding_second_main_service_throws_error():
     """
+    Adding a second main service should throw an error.
     """
 
 
 def test_set_main_service_as_module__adding_second_main_service_throws_error():
     """
+    Adding a second main service, as module, should throw an error.
     """
 
 
 def test_start__starting_without_main_service_throws_error():
     """
+    Attempting to start an inline service without a main service should throw an error.
     """
 
 
 def test_inline_services__adding_relation_with_improper_out_service_name_throws_error():
     """
+    Adding a relation without an output service already added should throw
+    an error.
     """
 
 
 def test_inline_services__adding_relation_with_improper_in_service_name_throws_error():
     """
+    Adding a relation without an input service already added should throw
+    an error.
     """
 
 
 def test_setup_service__validate_setup_service_sets_up_sigint_handler():
     """
+    Make sure that setup_service properly sets up sigint handler.
     """
 
 
 def test_setup_service__validate_setup_service_sets_up_sigterm_handler():
     """
-    """
-
-
-def test_setup_service__validate_setup_service_calls_setup_conifg():
-    """
-    """
-
-
-def test_get_to_send__to_send_functions_properly():
-    """
-    """
-
-
-def test_get_to_send__to_send_functions_with_return():
-    """
-    """
-
-
-def test_get_to_send__to_send_functions_with_publisher():
-    """
-    """
-
-
-def test_get_to_send__to_send_functions_with_requester():
-    """
+    Make sure that setup_service properly sets up sigterm handler.
     """
 
 
 def test_get_to_send__to_send_will_only_allow_one_return():
     """
+    A single call should not be able to recieve respones from
+    multiple sources as the Service Framework is setup to only
+    return a single value for each call.
     """
 
 
 def test_get_service_module__happy_case():
     """
+    Self Explanitory...
     """
 
 
 def test_get_service_module__service_name_dne_and_throws_error_case():
     """
+    Self Explanitory...
     """
 
 
 def test_get_service_config__happy_case():
     """
+    Self Explanitory...
     """
 
 
 def test_get_service_config__service_name_dne_and_throws_error_case():
     """
+    Self Explanitory...
     """
 
 
