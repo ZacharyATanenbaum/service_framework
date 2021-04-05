@@ -194,7 +194,7 @@ def test_set_main_service__setting_service_with_same_name_errors():
     Adding a main service, with the same name as another service, should error.
     """
     inline = InlineServices()
-    inline.set_main_service('multi_requester', MULTI_REQUESTER_PATH)
+    inline.add_service('multi_requester', MULTI_REQUESTER_PATH)
 
     with pytest.raises(ValueError):
         inline.set_main_service(
@@ -209,7 +209,7 @@ def test_set_main_service_as_module__setting_service_with_same_name_errors():
     service should error.
     """
     inline = InlineServices()
-    inline.set_main_service_by_module(
+    inline.add_service_by_module(
         'multi_requester',
         import_python_file_from_cwd(MULTI_REQUESTER_PATH)
     )
@@ -225,12 +225,28 @@ def test_set_main_service__adding_second_main_service_throws_error():
     """
     Adding a second main service should throw an error.
     """
+    inline = InlineServices()
+    inline.set_main_service('multi_requester', MULTI_REQUESTER_PATH)
+
+    with pytest.raises(ValueError):
+        inline.set_main_service('multi_requester', MULTI_REQUESTER_PATH)
 
 
 def test_set_main_service_as_module__adding_second_main_service_throws_error():
     """
     Adding a second main service, as module, should throw an error.
     """
+    inline = InlineServices()
+    inline.add_service_by_module(
+        'multi_requester',
+        import_python_file_from_cwd(MULTI_REQUESTER_PATH)
+    )
+
+    with pytest.raises(ValueError):
+        inline.set_main_service_by_module(
+            'multi_requester',
+            import_python_file_from_cwd(MULTI_REQUESTER_PATH)
+        )
 
 
 def test_start__starting_without_main_service_throws_error():
