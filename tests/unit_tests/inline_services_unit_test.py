@@ -328,6 +328,15 @@ def test_get_to_send__to_send_will_only_allow_one_return():
     multiple sources as the Service Framework is setup to only
     return a single value for each call.
     """
+    inline = InlineServices()
+    inline.set_main_service('requester', REQUESTER_PATH)
+    inline.add_service('replyer_1', REPLYER_PATH)
+    inline.add_relation('requester', 'request', 'replyer_1', 'reply')
+    inline.add_service('replyer_2', REPLYER_PATH)
+    inline.add_relation('requester', 'request', 'replyer_2', 'reply')
+
+    with pytest.raises(RuntimeError):
+        inline.start()
 
 
 def test_get_service_module__happy_case():

@@ -70,7 +70,7 @@ class InlineServices:
             )
 
         if key in self.relations:
-            self.relations[key] = (in_service_name, in_connection)
+            self.relations[key].append((in_service_name, in_connection))
         else:
             self.relations[key] = [(in_service_name, in_connection)]
 
