@@ -302,7 +302,6 @@ ADDRESSES_PATH = f'{BASE_DATA_DIR}/addresses.json'
 SERVICE_PATH = f'{BASE_DATA_DIR}/service.py'
 WO_SERVICE_PATH = f'{BASE_DATA_DIR}/wo_service.py'
 MAIN_SERVICE_PATH = f'{BASE_DATA_DIR}/main_service.py'
-SIGINT_PATH = f'{BASE_DATA_DIR}/run_sigint_service.sh'
 
 PROPER_ARGS = {'this_is_a_test_arg': 'Test Value!'}
 RETURN_PAYLOAD = {

@@ -310,18 +310,6 @@ def test_inline_services__adding_relation_with_improper_in_connection_name_throw
         inline.add_relation('requester', 'request', 'replyer', 'DNE')
 
 
-def test_setup_service__validate_setup_service_sets_up_sigint_handler():
-    """
-    Make sure that setup_service properly sets up sigint handler.
-    """
-
-
-def test_setup_service__validate_setup_service_sets_up_sigterm_handler():
-    """
-    Make sure that setup_service properly sets up sigterm handler.
-    """
-
-
 def test_get_to_send__to_send_will_only_allow_one_return():
     """
     A single call should not be able to recieve respones from
