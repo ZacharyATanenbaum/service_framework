@@ -107,7 +107,7 @@ class Subscriber(BaseConnection):
         """
         return {
             'required_creation_arguments': {
-                'on_new_message': lambda args, to_send, config: True,
+                'connection_function': lambda args, to_send, config: True,
             },
             'optional_creation_arguments': {
                 'is_binder': bool,

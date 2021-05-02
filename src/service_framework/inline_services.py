@@ -215,7 +215,7 @@ class InlineServices:
             for new_service_name, new_conn_name in self.relations[key]:
                 new_service = self.services[new_service_name]
                 new_conn = new_service.connection_models['in'][new_conn_name]
-                new_func = new_conn['required_creation_arguments']['on_new_request']
+                new_func = new_conn['required_creation_arguments']['connection_function']
 
                 to_return = new_func(
                     args,

@@ -21,7 +21,7 @@ class Replyer(BaseConnection):
         self.model = model
         self.context = None
 
-        self.on_new_req = model['required_creation_arguments']['on_new_request']
+        self.on_new_req = model['required_creation_arguments']['connection_function']
         self.socket = None
 
     def __del__(self):
@@ -91,7 +91,7 @@ class Replyer(BaseConnection):
         """
         return {
             'required_creation_arguments': {
-                'on_new_request': lambda args, to_send, config: True,
+                'connection_function': lambda args, to_send, config: True,
             },
             'optional_creation_arguments': {
                 'topic': str,

@@ -30,7 +30,7 @@ def on_new_request(args, to_send, config):
     """
     This function is needed to respond to a request message from a requester.
     """
-    LOG.info('%s, %s, %s, %s', args, to_send, states, config)
+    LOG.info('%s, %s, %s', args, to_send, config)
     return {}
 
 
@@ -39,7 +39,7 @@ connection_models = {
         'in_connection_1': {
             'connection_type': 'replyer',
             'required_creation_arguments': {
-                'on_new_request': on_new_request,
+                'connection_function': on_new_request,
             },
             'required_arguments': {
                 'this_is_a_test_arg': str,

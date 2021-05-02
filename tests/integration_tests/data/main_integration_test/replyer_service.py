@@ -21,7 +21,7 @@ connection_models = {
         'reply': {
             'connection_type': 'replyer',
             'required_creation_arguments': {
-                'on_new_request': on_new_request,
+                'connection_function': on_new_request,
             },
             'required_arguments': {
                 'to_echo': str,

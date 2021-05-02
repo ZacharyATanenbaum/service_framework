@@ -1,7 +1,7 @@
 """ File to house a requester service """
 
 from service_framework.utils.logging_utils import get_logger
-from service_framework.utils.utils import add_sigint_handler
+from service_framework.utils.utils import add_sig_handler
 
 LOG = get_logger()
 
@@ -12,7 +12,7 @@ def main(to_send, config):
         to_send('sigint_output', {'message': 'handler1'})
         LOG.info('SENT SIGINT MESSAGE FROM HANDLER 1')
 
-    add_sigint_handler(sigint_handler_1)
+    add_sig_handler(sigint_handler_1)
 
     while True:
         # Just keep waiting until it gets killed...

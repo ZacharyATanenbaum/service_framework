@@ -373,7 +373,7 @@ connection_models = {
         'cancel_order': {
             'connection_type': 'replyer',                  # Required
             'required_creation_arguments': {               # Optional
-                'on_new_cancel_order: on_new_cancel_order, # Optional
+                'connection_function': on_new_cancel_order, # Optional
             },
             'optional_creation_arguments': {},             # Optional
             'required_connection_arguments': {},           # Depends on the Connection
@@ -424,17 +424,17 @@ Also has XSUB support.
 ### Out
 ### External Target
 Used to wrap an external call and make sure all of the arguments are properly formatted and returned.
-Can use ``to_send('connection', 'external_target_name', {'args': 'here'}`` to send a payload to the external service.
+Can use ``to_send('external_target_name', {'args': 'here'}`` to send a payload to the external service.
 
 #### Publisher
 Used to wrap a ZMQ "Publisher" socket.
-Can use ``to_send('connection', 'publisher_conn_name', {'args': 'here'}`` to send a payload to the connected subscribers.
+Can use ``to_send('publisher_conn_name', {'args': 'here'}`` to send a payload to the connected subscribers.
 Also has XPUB support.
 [Link to Publisher File](src/service_framework/connections/out/publisher.py)
 
 #### Requester
 Used to wrap a ZMQ "Requester" socket.
-Can use ``to_send('connection', 'requester_conn_name', {'args': 'here'}`` to send a payload to the connected replyer.
+Can use ``to_send('requester_conn_name', {'args': 'here'}`` to send a payload to the connected replyer.
 [Link to Requester File](src/service_framework/connections/out/requester.py)
 
 
