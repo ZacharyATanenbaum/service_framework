@@ -76,6 +76,32 @@ my_service.stop_service()
 my_service.run_service_as_main_blocking()
 my_service.run_service_blocking()
 ``` 
+### Within One Thread
+To allow multiple services to be run synchronous within a single thread, for performance reasons, multiple services can be run _Inline_.
+
+An example can be find within the [Inline Service Unit Tests](./tests/unit_tests/inline_services_unit_test.py).
+```
+# Usage Example
+from service_framework import InlineServices
+from service_module import requester_service, responder_service
+
+requester_path = './requester_service.py'
+responder_path = './responder_service.py'
+
+# Inline Services from Path
+inline = InlineServices()
+inline.set_main_service('requester', requester_path)
+inline.add_service('replyer', replyer_path)
+inline.add_relation('requester', 'request', 'replyer', 'reply')
+inline.start()
+
+# Inline Services from Modules
+inline = InlineServices()
+inline.set_main_service_by_module('requester', requester_path)
+inline.add_service_by_module('replyer', replyer_path)
+inline.add_relation('requester', 'request', 'replyer', 'reply')
+inline.start()
+```
 
 #### Useful Optional Arguments
 Here are some other, optional parameters, that can be passed into the Service object:
