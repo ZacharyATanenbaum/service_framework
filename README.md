@@ -93,14 +93,23 @@ inline = InlineServices()
 inline.set_main_service('requester', requester_path)
 inline.add_service('replyer', replyer_path)
 inline.add_relation('requester', 'request', 'replyer', 'reply')
+
+# This will run the "main_service" main function and continue on it's return
 inline.start()
 
 # Inline Services from Modules
-inline = InlineServices()
-inline.set_main_service_by_module('requester', requester_path)
-inline.add_service_by_module('replyer', replyer_path)
-inline.add_relation('requester', 'request', 'replyer', 'reply')
-inline.start()
+inline2 = InlineServices()
+inline2.set_main_service_by_module('requester', requester_path)
+inline2.add_service_by_module('replyer', replyer_path)
+inline2.add_relation('requester', 'request', 'replyer', 'reply')
+
+# Configs can be provided when a main, or regular, service is added
+requester_config = {'nim_req_to_send': 10}
+replyer_config = {'response_text': 'TO_SEND'}
+inline3 = InlineServices()
+inline3.set_main_service_by_module('requester', requester_path, requester_config)
+inline3.add_service_by_module('replyer', replyer_path, replyer_config)
+inline3.add_relation('requester', 'request', 'replyer', 'reply')
 ```
 
 #### Useful Optional Arguments
