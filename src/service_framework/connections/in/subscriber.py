@@ -136,7 +136,7 @@ class Subscriber(BaseConnection):
             'decode_message': self._decode_message,
             'args_validator': self.args_validator,
             'connection_function': None,
-            'model_function': self.model['required_creation_arguments']['on_new_message'],
+            'model_function': self.model['required_creation_arguments']['connection_function'],
             'return_validator': None,
             'return_function': None,
         }]
